@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Administrativo – Vivências</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .badge { @apply inline-block px-2 py-0.5 rounded-full text-xs font-semibold; }
+    .badge-sim { @apply bg-green-100 text-green-700; }
+    .badge-nao { @apply bg-red-100 text-red-700; }
+    .badge-parcial { @apply bg-yellow-100 text-yellow-700; }
+    .badge-duvida { @apply bg-blue-100 text-blue-700; }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+
+  <!-- Login -->
+  <div id="telaLogin" class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-sm">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-600 mb-3 shadow">
+          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+        </div>
+        <h1 class="text-xl font-bold text-gray-800">Área Administrativa</h1>
+        <p class="text-sm text-gray-500 mt-1">Formulários de Vivência – CAD</p>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Usuário</label>
+          <input id="loginUser" type="text" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="admin" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+          <input id="loginSenha" type="password" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="••••••••" />
+        </div>
+        <div id="loginErro" class="hidden text-red-600 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">Usuário ou senha incorretos.</div>
+        <button id="btnLogin" onclick="fazerLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition">
+          Entrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="telaDashboard" class="hidden">
+
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shadow-sm">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+        </div>
+        <div>
+          <span class="font-bold text-gray-800 text-sm">Painel RH</span>
+          <span class="text-gray-400 text-xs ml-2">Formulários de Vivência</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="exportarCSV()" class="text-sm bg-green-50 hover:bg-green-100 text-green-700 font-semibold px-3 py-1.5 rounded-lg border border-green-200 transition">
+          Exportar CSV
+        </button>
+        <button onclick="sair()" class="text-sm text-gray-500 hover:text-red-600 transition font-medium">Sair</button>
+      </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 py-6">
+
+      <!-- Cards de resumo -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="cardsResumo">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+          <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Total</p>
+          <p id="totalCount" class="text-3xl font-bold text-blue-600 mt-1">–</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+          <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Querem prosseguir</p>
+          <p id="simCount" class="text-3xl font-bold text-green-600 mt-1">–</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+          <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Precisam refletir</p>
+          <p id="refletirCount" class="text-3xl font-bold text-yellow-500 mt-1">–</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+          <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Não seguirão</p>
+          <p id="naoCount" class="text-3xl font-bold text-red-500 mt-1">–</p>
+        </div>
+      </div>
+
+      <!-- Filtro e busca -->
+      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-4 flex flex-wrap gap-3 items-center">
+        <input id="busca" type="text" placeholder="Buscar por nome ou vaga..."
+          class="flex-1 min-w-48 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          oninput="filtrarTabela()" />
+        <select id="filtroDesejo" onchange="filtrarTabela()"
+          class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+          <option value="">Todos os desejos</option>
+          <option value="Sim">Quer prosseguir</option>
+          <option value="Não">Não quer prosseguir</option>
+          <option value="Preciso refletir">Precisa refletir</option>
+        </select>
+        <button onclick="carregarDados()" class="text-sm bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold px-3 py-2 rounded-lg border border-blue-200 transition">
+          Atualizar
+        </button>
+      </div>
+
+      <!-- Tabela -->
+      <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <div id="loadingMsg" class="text-center py-12 text-gray-400 text-sm">Carregando dados...</div>
+        <div id="tabelaWrap" class="hidden overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th class="text-left px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wide">Candidato</th>
+                <th class="text-left px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wide">Vaga</th>
+                <th class="text-left px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wide">Data</th>
+                <th class="text-left px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wide">Distância</th>
+                <th class="text-left px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wide">Demanda</th>
+                <th class="text-left px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wide">Desejo seguir</th>
+                <th class="text-left px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wide">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaBody" class="divide-y divide-gray-100"></tbody>
+          </table>
+        </div>
+        <div id="semDados" class="hidden text-center py-12 text-gray-400 text-sm">Nenhum formulário encontrado.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal de detalhes -->
+  <div id="modalOverlay" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onclick="fecharModal(event)">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+      <div class="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+        <h2 class="font-bold text-gray-800">Detalhes do Formulário</h2>
+        <button onclick="document.getElementById('modalOverlay').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+      </div>
+      <div id="modalConteudo" class="px-6 py-5 space-y-4"></div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ellbkstpbrtokrhwtsay.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_FrXgKzxCCiym_0FneDENOQ_4H7jHjkk';
+    // Credenciais de acesso ao painel — altere aqui para maior segurança
+    const ADMIN_USER = 'admin';
+    const ADMIN_SENHA = 'Bramarlog@rh@log';
+
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let todosRegistros = [];
+
+    function fazerLogin() {
+      const user = document.getElementById('loginUser').value.trim();
+      const senha = document.getElementById('loginSenha').value;
+      if (user === ADMIN_USER && senha === ADMIN_SENHA) {
+        document.getElementById('telaLogin').classList.add('hidden');
+        document.getElementById('telaDashboard').classList.remove('hidden');
+        carregarDados();
+      } else {
+        document.getElementById('loginErro').classList.remove('hidden');
+      }
+    }
+
+    document.getElementById('loginSenha')?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') fazerLogin();
+    });
+
+    function sair() {
+      document.getElementById('telaDashboard').classList.add('hidden');
+      document.getElementById('telaLogin').classList.remove('hidden');
+      document.getElementById('loginSenha').value = '';
+      document.getElementById('loginUser').value = '';
+    }
+
+    async function carregarDados() {
+      document.getElementById('loadingMsg').classList.remove('hidden');
+      document.getElementById('tabelaWrap').classList.add('hidden');
+      document.getElementById('semDados').classList.add('hidden');
+
+      const { data, error } = await db
+        .from('formularios_vivencia')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      document.getElementById('loadingMsg').classList.add('hidden');
+
+      if (error) {
+        document.getElementById('loadingMsg').textContent = 'Erro ao carregar: ' + error.message;
+        document.getElementById('loadingMsg').classList.remove('hidden');
+        return;
+      }
+
+      todosRegistros = data || [];
+      atualizarCards(todosRegistros);
+      renderizarTabela(todosRegistros);
+    }
+
+    function atualizarCards(dados) {
+      document.getElementById('totalCount').textContent = dados.length;
+      document.getElementById('simCount').textContent = dados.filter(d => d.desejo_seguir === 'Sim').length;
+      document.getElementById('refletirCount').textContent = dados.filter(d => d.desejo_seguir === 'Preciso refletir').length;
+      document.getElementById('naoCount').textContent = dados.filter(d => d.desejo_seguir === 'Não').length;
+    }
+
+    function badgeDesejo(val) {
+      if (val === 'Sim') return `<span class="badge badge-sim">${val}</span>`;
+      if (val === 'Não') return `<span class="badge badge-nao">${val}</span>`;
+      return `<span class="badge badge-duvida">${val || '–'}</span>`;
+    }
+
+    function badgeDemanda(val) {
+      if (val === 'Leve') return `<span class="badge badge-sim">${val}</span>`;
+      if (val === 'Intensa') return `<span class="badge badge-nao">${val}</span>`;
+      return `<span class="badge badge-parcial">${val || '–'}</span>`;
+    }
+
+    function formatarData(str) {
+      if (!str) return '–';
+      const d = new Date(str);
+      if (isNaN(d)) return str;
+      return d.toLocaleDateString('pt-BR');
+    }
+
+    function renderizarTabela(dados) {
+      const tbody = document.getElementById('tabelaBody');
+      tbody.innerHTML = '';
+
+      if (!dados.length) {
+        document.getElementById('semDados').classList.remove('hidden');
+        return;
+      }
+
+      document.getElementById('tabelaWrap').classList.remove('hidden');
+
+      dados.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-blue-50 transition cursor-pointer';
+        tr.innerHTML = `
+          <td class="px-4 py-3 font-medium text-gray-800">${r.nome_candidato || '–'}</td>
+          <td class="px-4 py-3 text-gray-600">${r.vaga || '–'}</td>
+          <td class="px-4 py-3 text-gray-500">${formatarData(r.data_vivencia)}</td>
+          <td class="px-4 py-3 text-gray-500">${r.distancia_residencia || '–'}</td>
+          <td class="px-4 py-3">${badgeDemanda(r.percepcao_demanda)}</td>
+          <td class="px-4 py-3">${badgeDesejo(r.desejo_seguir)}</td>
+          <td class="px-4 py-3">
+            <div class="flex gap-2">
+              <button onclick="verDetalhes(${r.id})" class="text-blue-600 hover:text-blue-800 text-xs font-semibold px-2 py-1 bg-blue-50 rounded hover:bg-blue-100 transition">Ver</button>
+              <button onclick="gerarPDF(${r.id})" class="text-green-600 hover:text-green-800 text-xs font-semibold px-2 py-1 bg-green-50 rounded hover:bg-green-100 transition">PDF</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filtrarTabela() {
+      const busca = document.getElementById('busca').value.toLowerCase();
+      const desejo = document.getElementById('filtroDesejo').value;
+      const filtrados = todosRegistros.filter(r => {
+        const nome = (r.nome_candidato || '').toLowerCase();
+        const vaga = (r.vaga || '').toLowerCase();
+        const matchBusca = !busca || nome.includes(busca) || vaga.includes(busca);
+        const matchDesejo = !desejo || r.desejo_seguir === desejo;
+        return matchBusca && matchDesejo;
+      });
+      renderizarTabela(filtrados);
+    }
+
+    function verDetalhes(id) {
+      const r = todosRegistros.find(x => x.id === id);
+      if (!r) return;
+
+      const campo = (label, val) => val
+        ? `<div><span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">${label}</span><p class="text-gray-800 text-sm mt-0.5">${val}</p></div>`
+        : '';
+
+      const secao = (titulo, conteudo) =>
+        `<div class="border border-gray-100 rounded-xl p-4"><h3 class="font-semibold text-gray-700 mb-3 text-sm">${titulo}</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-3">${conteudo}</div></div>`;
+
+      document.getElementById('modalConteudo').innerHTML = `
+        ${secao('Identificação', `
+          ${campo('Nome', r.nome_candidato)}
+          ${campo('Vaga', r.vaga)}
+          ${campo('Data da vivência', formatarData(r.data_vivencia))}
+          ${campo('Horário', r.horario)}
+        `)}
+        ${secao('Deslocamento e Logística', `
+          ${campo('Distância', r.distancia_residencia)}
+          ${campo('Tempo de deslocamento', r.tempo_deslocamento)}
+          ${campo('Meio de transporte', r.meio_transporte)}
+          ${campo('Hora de saída', r.hora_saida)}
+          ${campo('Hora de chegada', r.hora_chegada)}
+          ${campo('Rotina viável?', r.rotina_viavel)}
+          ${campo('Explicação sobre dúvida', r.rotina_duvidas_explicacao)}
+        `)}
+        ${secao('Percepção sobre a Demanda', `
+          ${campo('Percepção da demanda', r.percepcao_demanda)}
+          ${campo('Realidade alinhada?', r.realidade_alinhada)}
+          ${campo('Explicação', r.realidade_explicacao)}
+          ${campo('Identificação com o ritmo', r.identificacao_ritmo)}
+        `)}
+        ${secao('Integração com a Equipe', `
+          ${campo('Sentimento sobre equipe', r.sentimento_equipe)}
+          ${campo('Se imagina trabalhando?', r.imagina_trabalhando)}
+        `)}
+        ${secao('Alinhamento com a Vaga', `
+          ${campo('Salário atende expectativas?', r.salario_expectativas)}
+          ${campo('Desejo de seguir?', r.desejo_seguir)}
+          ${campo('Oportunidade faz sentido?', r.oportunidade_sentido)}
+          ${campo('Comentário final', r.comentario_final)}
+        `)}
+        ${secao('Confirmação', `
+          ${campo('Assinatura', r.assinatura)}
+          ${campo('Data de assinatura', formatarData(r.data_assinatura))}
+          ${campo('Enviado em', r.created_at ? new Date(r.created_at).toLocaleString('pt-BR') : '–')}
+        `)}
+      `;
+      document.getElementById('modalOverlay').classList.remove('hidden');
+    }
+
+    function fecharModal(e) {
+      if (e.target === document.getElementById('modalOverlay')) {
+        document.getElementById('modalOverlay').classList.add('hidden');
+      }
+    }
+
+    function gerarPDF(id) {
+      const r = todosRegistros.find(x => x.id === id);
+      if (!r) return;
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const W = 210, marginL = 18, marginR = 18;
+      const contentW = W - marginL - marginR;
+      let y = 0;
+
+      const corAzul = [29, 78, 216];
+      const corTitulo = [15, 23, 42];
+      const corTexto = [51, 65, 85];
+      const corBg = [239, 246, 255];
+      const corLinha = [226, 232, 240];
+
+      const checkY = (n = 10) => { if (y + n > 272) { doc.addPage(); y = 20; } };
+
+      // Header
+      doc.setFillColor(...corAzul);
+      doc.rect(0, 0, W, 38, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.text('FORMULÁRIO DE VIVÊNCIA – ETAPA PRÁTICA', W / 2, 15, { align: 'center' });
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text('CAD – Processo Seletivo', W / 2, 23, { align: 'center' });
+      doc.setFontSize(8.5);
+      doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, W / 2, 31, { align: 'center' });
+      y = 48;
+
+      // Bloco identificação
+      doc.setFillColor(...corBg);
+      doc.roundedRect(marginL, y, contentW, 30, 3, 3, 'F');
+      doc.setDrawColor(...corAzul);
+      doc.setLineWidth(0.5);
+      doc.roundedRect(marginL, y, contentW, 30, 3, 3, 'S');
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(...corAzul);
+      doc.text('CANDIDATO', marginL + 5, y + 7);
+      doc.text('VAGA', marginL + contentW / 2 + 2, y + 7);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10.5); doc.setTextColor(...corTitulo);
+      doc.text(r.nome_candidato || '–', marginL + 5, y + 15);
+      doc.text(r.vaga || '–', marginL + contentW / 2 + 2, y + 15);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(...corAzul);
+      doc.text('DATA DA VIVÊNCIA', marginL + 5, y + 23);
+      doc.text('HORÁRIO', marginL + contentW / 2 + 2, y + 23);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(...corTitulo);
+      doc.text(formatarData(r.data_vivencia), marginL + 5, y + 29);
+      doc.text(r.horario || '–', marginL + contentW / 2 + 2, y + 29);
+      y += 38;
+
+      const secao = (num, titulo) => {
+        checkY(14);
+        doc.setFillColor(...corAzul);
+        doc.circle(marginL + 4, y + 3.5, 4, 'F');
+        doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+        doc.text(num, marginL + 4, y + 4.2, { align: 'center' });
+        doc.setTextColor(...corTitulo); doc.setFontSize(11);
+        doc.text(titulo, marginL + 11, y + 5);
+        doc.setDrawColor(...corLinha); doc.setLineWidth(0.4);
+        doc.line(marginL, y + 9, marginL + contentW, y + 9);
+        y += 14;
+      };
+
+      const campo = (label, valor) => {
+        if (!valor) return;
+        checkY(14);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...corAzul);
+        doc.text(label.toUpperCase(), marginL, y);
+        y += 5;
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...corTexto);
+        const linhas = doc.splitTextToSize(valor, contentW);
+        linhas.forEach(l => { checkY(6); doc.text(l, marginL, y); y += 5.5; });
+        y += 3;
+      };
+
+      const campoDuplo = (l1, v1, l2, v2) => {
+        checkY(18);
+        const half = (contentW - 8) / 2;
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...corAzul);
+        doc.text(l1.toUpperCase(), marginL, y);
+        doc.text(l2.toUpperCase(), marginL + half + 8, y);
+        y += 5;
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...corTexto);
+        doc.text(v1 || '–', marginL, y);
+        doc.text(v2 || '–', marginL + half + 8, y);
+        y += 9;
+      };
+
+      secao('1', 'Deslocamento e Logística');
+      campo('Distância da residência ao CAD', r.distancia_residencia);
+      campoDuplo('Tempo de deslocamento', r.tempo_deslocamento, 'Meio de transporte', r.meio_transporte);
+      campoDuplo('Hora de saída de casa', r.hora_saida, 'Hora de chegada em casa', r.hora_chegada);
+      campo('Rotina viável a longo prazo?', r.rotina_viavel);
+      if (r.rotina_duvidas_explicacao) campo('Explicação sobre dúvida', r.rotina_duvidas_explicacao);
+
+      secao('2', 'Percepção sobre a Demanda e Rotina do CAD');
+      campo('Percepção da demanda de trabalho', r.percepcao_demanda);
+      campo('Realidade alinhada com o esperado?', r.realidade_alinhada);
+      if (r.realidade_explicacao) campo('Explicação', r.realidade_explicacao);
+      campo('Identificação com o ritmo e atividades', r.identificacao_ritmo);
+
+      secao('3', 'Integração com a Equipe');
+      campo('Como se sentiu em relação à equipe e ambiente', r.sentimento_equipe);
+      campo('Se imagina trabalhando com essa equipe?', r.imagina_trabalhando);
+
+      secao('4', 'Alinhamento com a Vaga');
+      campo('Salário e benefícios atendem às expectativas?', r.salario_expectativas);
+      campo('Desejo de seguir com a vaga', r.desejo_seguir);
+      campo('Oportunidade faz sentido profissionalmente?', r.oportunidade_sentido);
+      if (r.comentario_final) campo('Comentário final', r.comentario_final);
+
+      // Assinatura
+      checkY(30);
+      y += 4;
+      doc.setDrawColor(...corLinha); doc.setLineWidth(0.4);
+      doc.line(marginL, y, marginL + contentW, y);
+      y += 8;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...corAzul);
+      doc.text('ASSINATURA DO CANDIDATO', marginL, y);
+      doc.text('DATA', marginL + contentW / 2 + 10, y);
+      y += 6;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(...corTitulo);
+      doc.text(r.assinatura || '–', marginL, y);
+      doc.text(formatarData(r.data_assinatura), marginL + contentW / 2 + 10, y);
+
+      // Rodapé
+      const total = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= total; i++) {
+        doc.setPage(i);
+        doc.setFillColor(248, 250, 252);
+        doc.rect(0, 285, W, 12, 'F');
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(148, 163, 184);
+        doc.text('CAD – Formulário de Vivência Etapa Prática', marginL, 291);
+        doc.text(`Página ${i} de ${total}`, W - marginR, 291, { align: 'right' });
+      }
+
+      const nome = `Vivencia_${(r.nome_candidato || 'candidato').replace(/\s+/g, '_')}_${formatarData(r.data_vivencia).replace(/\//g, '-')}.pdf`;
+      doc.save(nome);
+    }
+
+    function exportarCSV() {
+      if (!todosRegistros.length) return alert('Nenhum dado para exportar.');
+      const cols = ['nome_candidato','vaga','data_vivencia','horario','distancia_residencia','tempo_deslocamento',
+        'meio_transporte','hora_saida','hora_chegada','rotina_viavel','rotina_duvidas_explicacao',
+        'percepcao_demanda','realidade_alinhada','realidade_explicacao','identificacao_ritmo',
+        'sentimento_equipe','imagina_trabalhando','salario_expectativas','desejo_seguir',
+        'oportunidade_sentido','comentario_final','assinatura','data_assinatura','created_at'];
+
+      const header = cols.join(';');
+      const linhas = todosRegistros.map(r =>
+        cols.map(c => `"${(r[c] || '').toString().replace(/"/g, '""')}"`).join(';')
+      );
+
+      const csv = '\uFEFF' + [header, ...linhas].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `vivencias_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

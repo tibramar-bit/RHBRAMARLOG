@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formulário de Vivência – Etapa Prática</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; }
+
+    .section-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      border: 1px solid #e8edf2;
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1e3a5f;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e8f0fe;
+    }
+
+    .section-num {
+      width: 28px; height: 28px;
+      background: #1d4ed8;
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .field-required::after {
+      content: ' *';
+      color: #dc2626;
+    }
+
+    .text-input {
+      width: 100%;
+      border: 1.5px solid #dde3ec;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.92rem;
+      color: #1e293b;
+      background: #f8fafc;
+      transition: border 0.2s, box-shadow 0.2s;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    .text-input:focus {
+      border-color: #3b82f6;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    }
+
+    .text-input::placeholder { color: #b0b9c6; }
+
+    textarea.text-input { resize: vertical; min-height: 72px; }
+
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .radio-opt {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 16px;
+      border: 1.5px solid #dde3ec;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      color: #374151;
+      background: #f8fafc;
+      transition: all 0.18s;
+      user-select: none;
+    }
+
+    .radio-opt:hover { border-color: #93c5fd; background: #eff6ff; }
+
+    .radio-opt input[type="radio"] { display: none; }
+
+    .radio-opt.selected {
+      border-color: #2563eb;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-weight: 600;
+    }
+
+    .radio-dot {
+      width: 16px; height: 16px;
+      border: 2px solid #cbd5e1;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.18s;
+      flex-shrink: 0;
+    }
+
+    .radio-opt.selected .radio-dot {
+      border-color: #2563eb;
+      background: #2563eb;
+    }
+
+    .radio-opt.selected .radio-dot::after {
+      content: '';
+      width: 6px; height: 6px;
+      background: #fff;
+      border-radius: 50%;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    @media (max-width: 640px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+      letter-spacing: 0.02em;
+    }
+
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(37,99,235,0.4); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+    .divider { border: none; border-top: 1.5px solid #e8edf2; margin: 4px 0 16px; }
+
+    .header-card {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+      border-radius: 20px;
+      padding: 32px;
+      text-align: center;
+      color: #fff;
+      margin-bottom: 24px;
+      box-shadow: 0 6px 24px rgba(29,78,216,0.3);
+    }
+  </style>
+</head>
+<body class="py-10 px-4">
+<div class="max-w-3xl mx-auto">
+
+  <!-- Header -->
+  <div class="header-card">
+    <div style="display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;background:rgba(255,255,255,0.18);border-radius:50%;margin-bottom:14px;">
+      <svg width="28" height="28" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+    </div>
+    <h1 style="font-size:1.6rem;font-weight:800;margin:0 0 6px;">Formulário de Vivência</h1>
+    <p style="font-size:0.95rem;opacity:0.85;margin:0;">Etapa Prática – CAD</p>
+  </div>
+
+  <form id="formVivencia" novalidate>
+
+    <!-- Identificação -->
+    <div class="section-card">
+      <div class="section-title">
+        <span class="section-num" style="background:#1d4ed8;">i</span>
+        Identificação do Candidato
+      </div>
+      <div class="grid-2" style="margin-bottom:16px;">
+        <div class="field-group">
+          <label class="field-label field-required">Nome do candidato</label>
+          <input id="nome" name="nome" type="text" class="text-input" required placeholder="Nome completo" />
+        </div>
+        <div class="field-group">
+          <label class="field-label field-required">Vaga</label>
+          <input id="vaga" name="vaga" type="text" class="text-input" required placeholder="Cargo pretendido" />
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label field-required">Data da vivência</label>
+          <input id="data_vivencia" name="data_vivencia" type="date" class="text-input" required />
+        </div>
+        <div class="field-group">
+          <label class="field-label field-required">Horário</label>
+          <input id="horario" name="horario" type="text" class="text-input" required placeholder="Ex: 08:00 às 17:00" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Seção 1 -->
+    <div class="section-card">
+      <div class="section-title">
+        <span class="section-num">1</span>
+        Deslocamento e Logística
+      </div>
+
+      <div class="field-group" style="margin-bottom:18px;">
+        <label class="field-label field-required">Distância aproximada da residência até o CAD</label>
+        <div class="radio-group" id="rg_distancia">
+          <label class="radio-opt"><input type="radio" name="distancia" value="Até 5 km" required /><span class="radio-dot"></span>Até 5 km</label>
+          <label class="radio-opt"><input type="radio" name="distancia" value="5 a 10 km" /><span class="radio-dot"></span>5 a 10 km</label>
+          <label class="radio-opt"><input type="radio" name="distancia" value="10 a 20 km" /><span class="radio-dot"></span>10 a 20 km</label>
+          <label class="radio-opt"><input type="radio" name="distancia" value="Acima de 20 km" /><span class="radio-dot"></span>Acima de 20 km</label>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:18px;">
+        <div class="field-group">
+          <label class="field-label field-required">Tempo médio para chegar ao CAD</label>
+          <input id="tempo_deslocamento" name="tempo_deslocamento" type="text" class="text-input" required placeholder="Ex: 30 minutos" />
+        </div>
+        <div class="field-group">
+          <label class="field-label field-required">Meio de transporte utilizado</label>
+          <input id="meio_transporte" name="meio_transporte" type="text" class="text-input" required placeholder="Ex: Ônibus, carro próprio..." />
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:18px;">
+        <div class="field-group">
+          <label class="field-label field-required">Que horas sairia de casa?</label>
+          <input id="hora_saida" name="hora_saida" type="text" class="text-input" required placeholder="Ex: 06:30" />
+        </div>
+        <div class="field-group">
+          <label class="field-label field-required">Que horas chegaria em casa?</label>
+          <input id="hora_chegada" name="hora_chegada" type="text" class="text-input" required placeholder="Ex: 18:30" />
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom:14px;">
+        <label class="field-label field-required">Essa rotina é viável a longo prazo?</label>
+        <div class="radio-group" id="rg_rotina_viavel">
+          <label class="radio-opt"><input type="radio" name="rotina_viavel" value="Sim" required /><span class="radio-dot"></span>Sim</label>
+          <label class="radio-opt"><input type="radio" name="rotina_viavel" value="Não" /><span class="radio-dot"></span>Não</label>
+          <label class="radio-opt"><input type="radio" name="rotina_viavel" value="Tenho dúvidas" /><span class="radio-dot"></span>Tenho dúvidas</label>
+        </div>
+      </div>
+
+      <div class="field-group" id="campo_rotina_duvidas" style="display:none;">
+        <label class="field-label">Se tiver dúvidas, explique</label>
+        <textarea id="rotina_duvidas_explicacao" name="rotina_duvidas_explicacao" class="text-input" placeholder="Explique sua dúvida..."></textarea>
+      </div>
+    </div>
+
+    <!-- Seção 2 -->
+    <div class="section-card">
+      <div class="section-title">
+        <span class="section-num">2</span>
+        Percepção sobre a Demanda e Rotina do CAD
+      </div>
+
+      <div class="field-group" style="margin-bottom:18px;">
+        <label class="field-label field-required">Como você percebeu a demanda de trabalho do CAD?</label>
+        <div class="radio-group" id="rg_percepcao_demanda">
+          <label class="radio-opt"><input type="radio" name="percepcao_demanda" value="Leve" required /><span class="radio-dot"></span>Leve</label>
+          <label class="radio-opt"><input type="radio" name="percepcao_demanda" value="Moderada" /><span class="radio-dot"></span>Moderada</label>
+          <label class="radio-opt"><input type="radio" name="percepcao_demanda" value="Intensa" /><span class="radio-dot"></span>Intensa</label>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom:18px;">
+        <label class="field-label field-required">A realidade observada está alinhada com o que imaginava?</label>
+        <div class="radio-group" id="rg_realidade_alinhada">
+          <label class="radio-opt"><input type="radio" name="realidade_alinhada" value="Sim" required /><span class="radio-dot"></span>Sim</label>
+          <label class="radio-opt"><input type="radio" name="realidade_alinhada" value="Parcialmente" /><span class="radio-dot"></span>Parcialmente</label>
+          <label class="radio-opt"><input type="radio" name="realidade_alinhada" value="Não" /><span class="radio-dot"></span>Não</label>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom:18px;">
+        <label class="field-label">Explique</label>
+        <textarea id="realidade_explicacao" name="realidade_explicacao" class="text-input" placeholder="Descreva sua percepção..."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label field-required">Você se identifica com o ritmo e as atividades desenvolvidas?</label>
+        <div class="radio-group" id="rg_identificacao_ritmo">
+          <label class="radio-opt"><input type="radio" name="identificacao_ritmo" value="Sim" required /><span class="radio-dot"></span>Sim</label>
+          <label class="radio-opt"><input type="radio" name="identificacao_ritmo" value="Não" /><span class="radio-dot"></span>Não</label>
+          <label class="radio-opt"><input type="radio" name="identificacao_ritmo" value="Em dúvida" /><span class="radio-dot"></span>Em dúvida</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seção 3 -->
+    <div class="section-card">
+      <div class="section-title">
+        <span class="section-num">3</span>
+        Integração com a Equipe
+      </div>
+
+      <div class="field-group" style="margin-bottom:18px;">
+        <label class="field-label field-required">Como você se sentiu em relação à equipe e ao ambiente de trabalho?</label>
+        <textarea id="sentimento_equipe" name="sentimento_equipe" class="text-input" required placeholder="Descreva sua experiência com a equipe..."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label field-required">Você se imagina trabalhando com essa equipe?</label>
+        <div class="radio-group" id="rg_imagina_trabalhando">
+          <label class="radio-opt"><input type="radio" name="imagina_trabalhando" value="Sim" required /><span class="radio-dot"></span>Sim</label>
+          <label class="radio-opt"><input type="radio" name="imagina_trabalhando" value="Não" /><span class="radio-dot"></span>Não</label>
+          <label class="radio-opt"><input type="radio" name="imagina_trabalhando" value="Tenho dúvidas" /><span class="radio-dot"></span>Tenho dúvidas</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seção 4 -->
+    <div class="section-card">
+      <div class="section-title">
+        <span class="section-num">4</span>
+        Alinhamento com a Vaga
+      </div>
+
+      <div class="field-group" style="margin-bottom:18px;">
+        <label class="field-label field-required">O salário e os benefícios atendem às suas expectativas?</label>
+        <div class="radio-group" id="rg_salario_expectativas">
+          <label class="radio-opt"><input type="radio" name="salario_expectativas" value="Sim" required /><span class="radio-dot"></span>Sim</label>
+          <label class="radio-opt"><input type="radio" name="salario_expectativas" value="Parcialmente" /><span class="radio-dot"></span>Parcialmente</label>
+          <label class="radio-opt"><input type="radio" name="salario_expectativas" value="Não" /><span class="radio-dot"></span>Não</label>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom:18px;">
+        <label class="field-label field-required">Após a vivência, você tem desejo de seguir com a vaga?</label>
+        <div class="radio-group" id="rg_desejo_seguir">
+          <label class="radio-opt"><input type="radio" name="desejo_seguir" value="Sim" required /><span class="radio-dot"></span>Sim</label>
+          <label class="radio-opt"><input type="radio" name="desejo_seguir" value="Não" /><span class="radio-dot"></span>Não</label>
+          <label class="radio-opt"><input type="radio" name="desejo_seguir" value="Preciso refletir" /><span class="radio-dot"></span>Preciso refletir</label>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom:18px;">
+        <label class="field-label field-required">Essa oportunidade faz sentido para o seu momento profissional?</label>
+        <div class="radio-group" id="rg_oportunidade_sentido">
+          <label class="radio-opt"><input type="radio" name="oportunidade_sentido" value="Sim" required /><span class="radio-dot"></span>Sim</label>
+          <label class="radio-opt"><input type="radio" name="oportunidade_sentido" value="Não" /><span class="radio-dot"></span>Não</label>
+          <label class="radio-opt"><input type="radio" name="oportunidade_sentido" value="Parcialmente" /><span class="radio-dot"></span>Parcialmente</label>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Comentário final sobre sua experiência</label>
+        <textarea id="comentario_final" name="comentario_final" class="text-input" style="min-height:96px;" placeholder="Compartilhe qualquer comentário adicional..."></textarea>
+      </div>
+    </div>
+
+    <!-- Confirmação -->
+    <div class="section-card">
+      <div class="section-title">
+        <span class="section-num" style="background:#059669;">✓</span>
+        Confirmação e Assinatura
+      </div>
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label field-required">Assinatura (nome completo)</label>
+          <input id="assinatura" name="assinatura" type="text" class="text-input" required placeholder="Digite seu nome completo" />
+        </div>
+        <div class="field-group">
+          <label class="field-label field-required">Data</label>
+          <input id="data_assinatura" name="data_assinatura" type="date" class="text-input" required />
+        </div>
+      </div>
+    </div>
+
+    <!-- Erro -->
+    <div id="erroAlert" style="display:none;background:#fef2f2;border:1.5px solid #fca5a5;color:#b91c1c;border-radius:12px;padding:12px 16px;font-size:0.88rem;margin-bottom:16px;"></div>
+
+    <button type="submit" id="btnEnviar" class="btn-primary">Enviar Formulário</button>
+  </form>
+
+  <!-- Sucesso -->
+  <div id="sucesso" style="display:none;background:#fff;border-radius:20px;box-shadow:0 2px 12px rgba(0,0,0,0.08);padding:48px 32px;text-align:center;margin-top:8px;">
+    <div style="display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;background:#d1fae5;border-radius:50%;margin-bottom:16px;">
+      <svg width="36" height="36" fill="none" stroke="#059669" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+    </div>
+    <h2 style="font-size:1.4rem;font-weight:800;color:#1e293b;margin:0 0 8px;">Formulário enviado com sucesso!</h2>
+    <p style="color:#64748b;font-size:0.95rem;margin:0;">Suas respostas foram registradas. Aguarde o contato do RH.</p>
+  </div>
+
+  <p style="text-align:center;font-size:0.75rem;color:#b0b9c6;margin-top:24px;">CAD – Formulário de Vivência Etapa Prática</p>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://ellbkstpbrtokrhwtsay.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_FrXgKzxCCiym_0FneDENOQ_4H7jHjkk';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // Estilo visual dos radio buttons
+  document.querySelectorAll('.radio-opt').forEach(label => {
+    label.addEventListener('click', () => {
+      const radio = label.querySelector('input[type="radio"]');
+      const group = label.closest('.radio-group');
+      group.querySelectorAll('.radio-opt').forEach(l => l.classList.remove('selected'));
+      label.classList.add('selected');
+      radio.checked = true;
+    });
+  });
+
+  // Mostrar campo de dúvida na rotina
+  document.querySelectorAll('input[name="rotina_viavel"]').forEach(r => {
+    r.addEventListener('change', () => {
+      const campo = document.getElementById('campo_rotina_duvidas');
+      campo.style.display = r.value === 'Tenho dúvidas' ? 'flex' : 'none';
+    });
+  });
+
+  document.getElementById('formVivencia').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const btn = document.getElementById('btnEnviar');
+    const erroAlert = document.getElementById('erroAlert');
+    erroAlert.style.display = 'none';
+
+    const get = (name) => {
+      const checked = form.querySelector(`input[name="${name}"]:checked`);
+      if (checked) return checked.value;
+      const el = document.getElementById(name);
+      return el ? el.value.trim() : '';
+    };
+
+    const dados = {
+      nome_candidato: get('nome'),
+      vaga: get('vaga'),
+      data_vivencia: get('data_vivencia'),
+      horario: get('horario'),
+      distancia_residencia: get('distancia'),
+      tempo_deslocamento: get('tempo_deslocamento'),
+      meio_transporte: get('meio_transporte'),
+      hora_saida: get('hora_saida'),
+      hora_chegada: get('hora_chegada'),
+      rotina_viavel: get('rotina_viavel'),
+      rotina_duvidas_explicacao: get('rotina_duvidas_explicacao'),
+      percepcao_demanda: get('percepcao_demanda'),
+      realidade_alinhada: get('realidade_alinhada'),
+      realidade_explicacao: get('realidade_explicacao'),
+      identificacao_ritmo: get('identificacao_ritmo'),
+      sentimento_equipe: get('sentimento_equipe'),
+      imagina_trabalhando: get('imagina_trabalhando'),
+      salario_expectativas: get('salario_expectativas'),
+      desejo_seguir: get('desejo_seguir'),
+      oportunidade_sentido: get('oportunidade_sentido'),
+      comentario_final: get('comentario_final'),
+      assinatura: get('assinatura'),
+      data_assinatura: get('data_assinatura'),
+    };
+
+    const obrigatorios = ['nome_candidato','vaga','data_vivencia','horario','distancia_residencia',
+      'tempo_deslocamento','meio_transporte','hora_saida','hora_chegada','rotina_viavel',
+      'percepcao_demanda','realidade_alinhada','identificacao_ritmo','sentimento_equipe',
+      'imagina_trabalhando','salario_expectativas','desejo_seguir','oportunidade_sentido',
+      'assinatura','data_assinatura'];
+
+    if (obrigatorios.some(k => !dados[k])) {
+      erroAlert.textContent = 'Por favor, preencha todos os campos obrigatórios antes de enviar.';
+      erroAlert.style.display = 'block';
+      erroAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    const { error } = await db.from('formularios_vivencia').insert([dados]);
+
+    if (error) {
+      erroAlert.textContent = 'Erro ao enviar: ' + error.message;
+      erroAlert.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Enviar Formulário';
+      erroAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      form.style.display = 'none';
+      document.getElementById('sucesso').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+</script>
+</body>
+</html>
