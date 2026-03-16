@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recrutamento Bramarlog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-['Poppins']">
+
+    <!-- Mensagem de Boas-Vindas Animada -->
+    <div id="welcome-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-blue-900 text-white text-center p-4">
+        <img src="img/logo.jpg" alt="Logo Bramarlog" class="w-48 md:w-64 mb-6 rounded-lg shadow-2xl animate__animated animate__fadeInDown">
+        <h1 class="text-4xl md:text-6xl font-bold animate__animated animate__zoomIn">
+            Bem vindo ao Recrutamento Bramarlog
+        </h1>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-blue-900 mb-2">Recrutamento Bramarlog</h1>
+            <p class="text-gray-600">Preencha o formulário abaixo para participar do nosso processo seletivo.</p>
+        </header>
+
+        <form id="recruitment-form" class="bg-white shadow-xl rounded-lg p-8 space-y-8">
+            <!-- Dados Básicos -->
+            <section>
+                <h2 class="text-2xl font-semibold text-blue-800 border-b-2 border-blue-100 pb-2 mb-4">Dados Pessoais</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Nome Completo *</label>
+                        <input type="text" name="nome_completo" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Idade *</label>
+                        <input type="number" name="idade" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Forma de Recrutamento</label>
+                        <select name="forma_recrutamento" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                            <option value="">Selecione...</option>
+                            <option value="ANÚNCIO">Anúncio</option>
+                            <option value="CADASTRO INTERNO">Cadastro Interno</option>
+                            <option value="LINKEDIN">LinkedIn</option>
+                            <option value="INSTAGRAM">Instagram</option>
+                            <option value="WHATSAPP">WhatsApp</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Indicação de</label>
+                        <input type="text" name="indicacao_de" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Cargo Pretendido *</label>
+                        <input type="text" name="cargo_pretendido" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Tem Transporte?</label>
+                        <div class="mt-2 space-x-4">
+                            <label><input type="radio" name="tem_transporte" value="SIM" class="mr-2"> Sim</label>
+                            <label><input type="radio" name="tem_transporte" value="NÃO" class="mr-2"> Não</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                    <div class="md:col-span-1">
+                        <label class="block text-sm font-medium text-gray-700">Reside em (Cidade)</label>
+                        <input type="text" name="reside_em" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Naturalidade *</label>
+                        <input type="text" name="naturalidade" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Estado Civil *</label>
+                        <input type="text" name="estado_civil" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Nº de Filhos *</label>
+                        <input type="number" name="quantidade_filhos" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Formação Educacional -->
+            <section>
+                <h2 class="text-2xl font-semibold text-blue-800 border-b-2 border-blue-100 pb-2 mb-4">Formação Educacional</h2>
+                <div class="space-y-4">
+                    <!-- 2º Grau -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="flex items-center space-x-2 pt-6">
+                            <input type="checkbox" name="escolaridade_2grau" id="2grau">
+                            <label for="2grau">2º Grau</label>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Instituição</label>
+                            <input type="text" name="inst_2grau" class="mt-1 block w-full border p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Período</label>
+                            <input type="text" name="periodo_2grau" class="mt-1 block w-full border p-2">
+                        </div>
+                    </div>
+                    <!-- Técnico -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="flex items-center space-x-2 pt-6">
+                            <input type="checkbox" name="escolaridade_tecnico" id="tecnico">
+                            <label for="tecnico">Técnico</label>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Instituição</label>
+                            <input type="text" name="inst_tecnico" class="mt-1 block w-full border p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Período</label>
+                            <input type="text" name="periodo_tecnico" class="mt-1 block w-full border p-2">
+                        </div>
+                    </div>
+                    <!-- Superior -->
+                    <div class="space-y-2 border-t pt-4">
+                        <p class="font-medium text-sm">Superior:</p>
+                        <div class="flex space-x-4">
+                            <label><input type="radio" name="superior_status" value="Completo"> Completo</label>
+                            <label><input type="radio" name="superior_status" value="Incompleto"> Incompleto</label>
+                            <label><input type="radio" name="superior_status" value="Cursando"> Cursando</label>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Instituição</label>
+                                <input type="text" name="inst_superior" class="mt-1 block w-full border p-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Situação</label>
+                                <input type="text" name="sit_superior" class="mt-1 block w-full border p-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Período</label>
+                                <input type="text" name="periodo_superior" class="mt-1 block w-full border p-2">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Outros Cursos</label>
+                        <textarea name="outros_cursos" class="mt-1 block w-full border p-2"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Idiomas (Inglês)</label>
+                            <select name="ingles_nivel" class="mt-1 block w-full border p-2">
+                                <option value="">Não possui</option>
+                                <option value="Básico">Básico</option>
+                                <option value="Intermediário">Intermediário</option>
+                                <option value="Avançado">Avançado</option>
+                                <option value="Fluente">Fluente</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Informática</label>
+                            <div class="mt-2 space-x-4">
+                                <label><input type="radio" name="informatica" value="Não tem"> Não tem</label>
+                                <label><input type="radio" name="informatica" value="Básica"> Básica</label>
+                                <label><input type="radio" name="informatica" value="Avançada"> Avançada</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Experiência fora do País?</label>
+                        <div class="mt-2 flex items-center space-x-4">
+                            <label><input type="radio" name="experiencia_exterior" value="SIM"> Sim</label>
+                            <label><input type="radio" name="experiencia_exterior" value="NÃO"> Não</label>
+                            <input type="text" name="quais_paises" placeholder="Quais países?" class="flex-1 border p-2 rounded ml-4">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Experiências Profissionais -->
+            <section>
+                <div class="flex justify-between items-center border-b-2 border-blue-100 pb-2 mb-4">
+                    <h2 class="text-2xl font-semibold text-blue-800">Experiências Profissionais</h2>
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="primeiro_emprego" name="primeiro_emprego">
+                        <label for="primeiro_emprego" class="font-medium text-blue-700">Este é meu primeiro emprego!</label>
+                    </div>
+                </div>
+
+                <div id="experiencias-container" class="space-y-6">
+                    <!-- Gerado via JavaScript -->
+                </div>
+
+                <button type="button" id="add-experiencia" class="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">
+                    + Adicionar mais experiência
+                </button>
+            </section>
+
+            <!-- Perguntas Adicionais -->
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold text-blue-800 border-b-2 border-blue-100 pb-2 mb-4">Informações Complementares</h2>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">O que motiva você a participar desta seleção? *</label>
+                    <textarea name="motivacao" required class="mt-1 block w-full border p-2 h-24"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Qual sua maior dificuldade em relação interpessoal? *</label>
+                    <textarea name="dificuldade_interpessoal" required class="mt-1 block w-full border p-2 h-24"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Principais Habilidades e Competências *</label>
+                    <textarea name="habilidades_competencias" required class="mt-1 block w-full border p-2 h-24"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Pretensão (Cargo e Salário) *</label>
+                    <input type="text" name="pretensao_salarial" required class="mt-1 block w-full border p-2">
+                </div>
+            </section>
+
+            <div class="pt-6">
+                <button type="submit" class="w-full bg-blue-900 text-white font-bold py-4 rounded-lg hover:bg-blue-800 transition transform hover:scale-[1.02]">
+                    ENVIAR CANDIDATURA
+                </button>
+            </div>
+        </form>
+
+        <footer class="mt-12 text-center text-gray-500">
+            <p>&copy; 2026 Bramarlog Recrutamento</p>
+            <a href="login.html" class="text-blue-600 hover:underline mt-2 inline-block">Área do Administrador</a>
+        </footer>
+    </div>
+
+    <script src="js/form.js"></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login ADM - Bramarlog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-['Poppins'] flex items-center justify-center h-screen">
+
+    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+        <h1 class="text-3xl font-bold text-blue-900 text-center mb-6">Área ADM</h1>
+        <p class="text-center text-gray-600 mb-8">Faça login para gerenciar as candidaturas</p>
+
+        <form id="login-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Usuário</label>
+                <input type="text" id="usuario" name="usuario" required class="mt-1 block w-full border rounded p-2 focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Senha</label>
+                <input type="password" id="senha" name="senha" required class="mt-1 block w-full border rounded p-2 focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            <button type="submit" class="w-full bg-blue-900 text-white font-bold py-2 rounded hover:bg-blue-800 transition">
+                ENTRAR
+            </button>
+        </form>
+        
+        <div class="mt-4 text-center">
+            <a href="index.html" class="text-sm text-blue-600 hover:underline">Voltar para o formulário</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const usuario = document.getElementById('usuario').value;
+            const senha = document.getElementById('senha').value;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario, senha })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    window.location.href = '/admin.html';
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error('Erro no login:', error);
+                alert('Erro na conexão com o servidor.');
+            }
+        });
+    </script>
+</body>
+</html>

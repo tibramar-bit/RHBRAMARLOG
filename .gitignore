@@ -1,0 +1,5 @@
+node_modules/
+database.db
+Recrutamento_Bramarlog.zip
+.DS_Store
+*.log
