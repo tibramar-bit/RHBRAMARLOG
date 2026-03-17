@@ -3,6 +3,16 @@ const SUPABASE_URL = 'https://qefixlmqxlppblfablnf.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ezBVjQjOIjBmzjK_CE2tLg_8iDMFBG_'; // Verifique se esta é a anon key correta (ey...)
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Verificar login no GitHub Pages
+if (localStorage.getItem('isLoggedIn') !== 'true') {
+    window.location.href = 'login.html';
+}
+
+function logout() {
+    localStorage.removeItem('isLoggedIn');
+    window.location.href = 'login.html';
+}
+
 let currentCandidato = null;
 
 async function loadCandidatos() {

@@ -38,22 +38,12 @@
             const usuario = document.getElementById('usuario').value;
             const senha = document.getElementById('senha').value;
 
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usuario, senha })
-                });
-
-                const data = await response.json();
-                if (data.success) {
-                    window.location.href = '/admin.html';
-                } else {
-                    alert(data.message);
-                }
-            } catch (error) {
-                console.error('Erro no login:', error);
-                alert('Erro na conexão com o servidor.');
+            // Lógica de login local para GitHub Pages (Simulando o ADM)
+            if (usuario === 'adm' && senha === 'Bramarlog@hr@rec') {
+                localStorage.setItem('isLoggedIn', 'true');
+                window.location.href = 'admin.html';
+            } else {
+                alert('Usuário ou senha incorretos');
             }
         });
     </script>
