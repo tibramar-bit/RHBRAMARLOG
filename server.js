@@ -145,4 +145,9 @@ app.delete('/api/candidatos/:id', checkAuth, (req, res) => {
     });
 });
 
-app.listen(port, () => console.log(`Rodando em http://localhost:${port}`));
+const port = process.env.PORT || 3000;
+const host = '0.0.0.0';
+
+app.listen(port, host, () => {
+    console.log(`Servidor rodando em http://${host}:${port}`);
+});
