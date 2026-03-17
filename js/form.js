@@ -1,3 +1,8 @@
+// Configuração Supabase
+const SUPABASE_URL = 'https://qefixlmqxlppblfablnf.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_ezBVjQjOIjBmzjK_CE2tLg_8iDMFBG_'; // Verifique se esta é a anon key correta (ey...)
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('recruitment-form');
     const container = document.getElementById('experiencias-container');
@@ -58,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         container.appendChild(card);
 
-        // Adiciona funcionalidade de remover para novos cards
         if (experienciaCount > 3) {
             card.querySelector('.remove-exp').addEventListener('click', () => {
                 card.remove();
@@ -66,12 +70,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Botão para adicionar mais experiências
     addBtn.addEventListener('click', () => {
         addExperienciaField();
     });
 
-    // Lógica para Primeiro Emprego
     primeiroEmpregoCheckbox.addEventListener('change', (e) => {
         const inputs = container.querySelectorAll('input, textarea, select');
         if (e.target.checked) {
@@ -84,11 +86,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Validação de campos obrigatórios com JS e Envio do Formulário
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Verificar campos obrigatórios
         const requiredFields = form.querySelectorAll('[required]');
         let valid = true;
         requiredFields.forEach(field => {
@@ -105,11 +105,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Coletar dados
         const formData = new FormData(form);
         const data = {
             nome_completo: formData.get('nome_completo'),
-            idade: formData.get('idade'),
+            idade: parseInt(formData.get('idade')),
             forma_recrutamento: formData.get('forma_recrutamento'),
             indicacao_de: formData.get('indicacao_de'),
             cargo_pretendido: formData.get('cargo_pretendido'),
@@ -117,18 +116,18 @@ document.addEventListener('DOMContentLoaded', () => {
             reside_em: formData.get('reside_em'),
             naturalidade: formData.get('naturalidade'),
             estado_civil: formData.get('estado_civil'),
-            quantidade_filhos: formData.get('quantidade_filhos'),
-            escolaridade: {
+            quantidade_filhos: parseInt(formData.get('quantidade_filhos')),
+            escolaridade: JSON.stringify({
                 fundamental: formData.get('escolaridade_2grau') === 'on',
                 tecnico: formData.get('escolaridade_tecnico') === 'on',
                 superior_status: formData.get('superior_status'),
                 inst_superior: formData.get('inst_superior'),
                 outros: formData.get('outros_cursos')
-            },
-            idiomas: {
+            }),
+            idiomas: JSON.stringify({
                 ingles_nivel: formData.get('ingles_nivel'),
                 obs: formData.get('idioma_obs')
-            },
+            }),
             informatica: formData.get('informatica'),
             experiencia_fora_pais: formData.get('experiencia_exterior'),
             quais_paises: formData.get('quais_paises'),
@@ -140,11 +139,9 @@ document.addEventListener('DOMContentLoaded', () => {
             pretensao_salarial: formData.get('pretensao_salarial')
         };
 
-        // Coletar experiências se não for o primeiro emprego
         if (!data.primeiro_emprego) {
             const cards = container.querySelectorAll('.experiencia-card');
             cards.forEach((card, index) => {
-                const i = index + 1;
                 const empresa = card.querySelector(`input[name^="empresa_"]`).value;
                 if (empresa) {
                     data.experiencias.push({
@@ -160,25 +157,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
+        data.experiencias = JSON.stringify(data.experiencias);
 
         try {
-            const response = await fetch('/api/candidatos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
+            const { error } = await supabase
+                .from('candidatos')
+                .insert([data]);
 
-            if (response.ok) {
-                alert('Candidatura enviada com sucesso! Boa sorte!');
-                form.reset();
-                window.location.reload();
-            } else {
-                const errorData = await response.json();
-                alert('Erro ao enviar: ' + (errorData.error || 'Tente novamente.'));
-            }
+            if (error) throw error;
+
+            alert('Candidatura enviada com sucesso! Boa sorte!');
+            form.reset();
+            window.location.reload();
         } catch (error) {
             console.error('Erro:', error);
-            alert('Erro na conexão com o servidor.');
+            alert('Erro ao enviar candidatura: ' + error.message);
         }
     });
 });

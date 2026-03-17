@@ -1,13 +1,19 @@
+// Configuração Supabase
+const SUPABASE_URL = 'https://qefixlmqxlppblfablnf.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_ezBVjQjOIjBmzjK_CE2tLg_8iDMFBG_'; // Verifique se esta é a anon key correta (ey...)
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 let currentCandidato = null;
 
 async function loadCandidatos() {
     try {
-        const response = await fetch('/api/candidatos');
-        if (response.status === 401) {
-            window.location.href = '/login.html';
-            return;
-        }
-        const data = await response.json();
+        const { data, error } = await supabaseClient
+            .from('candidatos')
+            .select('*')
+            .order('data_envio', { ascending: false });
+
+        if (error) throw error;
+
         const list = document.getElementById('candidatos-list');
         list.innerHTML = '';
 
@@ -32,6 +38,7 @@ async function loadCandidatos() {
         });
     } catch (err) {
         console.error('Erro ao carregar candidatos:', err);
+        alert('Erro ao carregar dados do Supabase: ' + err.message);
     }
 }
 
@@ -46,31 +53,34 @@ function getStatusColor(status) {
 
 async function updateStatus(id, newStatus) {
     try {
-        const response = await fetch(`/api/candidatos/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: newStatus })
-        });
-        if (response.ok) {
-            loadCandidatos();
-            closeModal();
-        }
+        const { error } = await supabaseClient
+            .from('candidatos')
+            .update({ status: newStatus })
+            .eq('id', id);
+
+        if (error) throw error;
+        
+        loadCandidatos();
+        closeModal();
     } catch (err) {
         console.error('Erro ao atualizar status:', err);
+        alert('Erro ao atualizar: ' + err.message);
     }
 }
 
 async function deleteCandidato(id) {
     if (confirm('Tem certeza que deseja apagar este candidato?')) {
         try {
-            const response = await fetch(`/api/candidatos/${id}`, {
-                method: 'DELETE'
-            });
-            if (response.ok) {
-                loadCandidatos();
-            }
+            const { error } = await supabaseClient
+                .from('candidatos')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+            loadCandidatos();
         } catch (err) {
             console.error('Erro ao apagar candidato:', err);
+            alert('Erro ao apagar: ' + err.message);
         }
     }
 }
@@ -81,9 +91,9 @@ function viewCandidato(c) {
     const content = document.getElementById('modal-content');
     
     // Parse JSON data
-    const escolaridade = JSON.parse(c.escolaridade || '{}');
-    const idiomas = JSON.parse(c.idiomas || '{}');
-    const experiencias = JSON.parse(c.experiencias || '[]');
+    const escolaridade = typeof c.escolaridade === 'string' ? JSON.parse(c.escolaridade || '{}') : (c.escolaridade || {});
+    const idiomas = typeof c.idiomas === 'string' ? JSON.parse(c.idiomas || '{}') : (c.idiomas || {});
+    const experiencias = typeof c.experiencias === 'string' ? JSON.parse(c.experiencias || '[]') : (c.experiencias || []);
 
     content.innerHTML = `
         <div id="pdf-container" class="space-y-6">
@@ -173,7 +183,6 @@ async function printCandidatePDF() {
     const { jsPDF } = window.jspdf;
     const element = document.getElementById('pdf-container');
     
-    // Configurar o PDF para não cortar conteúdo
     const canvas = await html2canvas(element, { scale: 2 });
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('p', 'mm', 'a4');
