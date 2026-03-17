@@ -3,31 +3,25 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const session = require('express-session');
 const path = require('path');
-const fs = require('fs');
+const { Pool } = require('pg');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Banco de Dados JSON
-const DB_FILE = path.resolve(__dirname, 'database.json');
-
-function getDb() {
-    if (!fs.existsSync(DB_FILE)) {
-        fs.writeFileSync(DB_FILE, JSON.stringify({ candidatos: [] }, null, 2));
+// Configuração do Banco de Dados PostgreSQL (Supabase)
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false
     }
-    return JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
-}
-
-function saveDb(data) {
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
-}
+});
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Servir arquivos estáticos (A ordem importa!)
+// Servir arquivos estáticos
 app.use(express.static(__dirname));
 
 // Rotas HTML
@@ -43,23 +37,32 @@ app.use(session({
 }));
 
 // API de Cadastro
-app.post('/api/candidatos', (req, res) => {
+app.post('/api/candidatos', async (req, res) => {
     try {
         const d = req.body;
-        const db = getDb();
+        const query = `
+            INSERT INTO candidatos (
+                nome_completo, idade, forma_recrutamento, indicacao_de, cargo_pretendido, 
+                tem_transporte, reside_em, naturalidade, estado_civil, quantidade_filhos, 
+                escolaridade, idiomas, informatica, experiencia_fora_pais, quais_paises, 
+                primeiro_emprego, experiencias, motivacao, dificuldade_interpessoal, 
+                habilidades_competencias, pretensao_salarial
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+            RETURNING id
+        `;
         
-        const novoCandidato = {
-            id: Date.now(),
-            ...d,
-            status: 'Em Análise',
-            data_envio: new Date().toISOString()
-        };
+        const values = [
+            d.nome_completo, d.idade, d.forma_recrutamento, d.indicacao_de, d.cargo_pretendido,
+            d.tem_transporte, d.reside_em, d.naturalidade, d.estado_civil, d.quantidade_filhos,
+            JSON.stringify(d.escolaridade), JSON.stringify(d.idiomas), d.informatica, d.experiencia_fora_pais, d.quais_paises,
+            d.primeiro_emprego, JSON.stringify(d.experiencias), d.motivacao, d.dificuldade_interpessoal,
+            d.habilidades_competencias, d.pretensao_salarial
+        ];
 
-        db.candidatos.push(novoCandidato);
-        saveDb(db);
-        
-        res.json({ message: 'Sucesso!', id: novoCandidato.id });
+        const result = await pool.query(query, values);
+        res.json({ message: 'Sucesso!', id: result.rows[0].id });
     } catch (err) {
+        console.error(err);
         res.status(400).json({ error: err.message });
     }
 });
@@ -86,43 +89,32 @@ const checkAuth = (req, res, next) => {
 };
 
 // Listar Candidatos
-app.get('/api/candidatos', checkAuth, (req, res) => {
+app.get('/api/candidatos', checkAuth, async (req, res) => {
     try {
-        const db = getDb();
-        res.json(db.candidatos.sort((a, b) => new Date(b.data_envio) - new Date(a.data_envio)));
+        const result = await pool.query('SELECT * FROM candidatos ORDER BY data_envio DESC');
+        res.json(result.rows);
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
 });
 
 // Atualizar Status
-app.put('/api/candidatos/:id', checkAuth, (req, res) => {
+app.put('/api/candidatos/:id', checkAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
-        const db = getDb();
-        
-        const index = db.candidatos.findIndex(c => c.id == id);
-        if (index !== -1) {
-            db.candidatos[index].status = status;
-            saveDb(db);
-            res.json({ message: 'OK' });
-        } else {
-            res.status(404).json({ error: 'Não encontrado' });
-        }
+        await pool.query('UPDATE candidatos SET status = $1 WHERE id = $2', [status, id]);
+        res.json({ message: 'OK' });
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
 });
 
 // Apagar Candidato
-app.delete('/api/candidatos/:id', checkAuth, (req, res) => {
+app.delete('/api/candidatos/:id', checkAuth, async (req, res) => {
     try {
         const { id } = req.params;
-        const db = getDb();
-        
-        db.candidatos = db.candidatos.filter(c => c.id != id);
-        saveDb(db);
+        await pool.query('DELETE FROM candidatos WHERE id = $1', [id]);
         res.json({ message: 'OK' });
     } catch (err) {
         res.status(400).json({ error: err.message });
