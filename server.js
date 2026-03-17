@@ -9,11 +9,12 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Configuração do Banco de Dados SQLite
-const db = new sqlite3.Database('./database.db', (err) => {
+const dbPath = path.resolve(__dirname, 'database.db');
+const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
-        console.error('Erro ao abrir o banco de dados SQLite', err.message);
+        console.error('Erro ao abrir o banco de dados SQLite:', err.message);
     } else {
-        console.log('Conectado ao banco de dados SQLite.');
+        console.log('Conectado ao banco de dados SQLite em:', dbPath);
         db.run(`CREATE TABLE IF NOT EXISTS candidatos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome_completo TEXT NOT NULL,

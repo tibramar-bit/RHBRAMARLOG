@@ -173,7 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 form.reset();
                 window.location.reload();
             } else {
-                alert('Erro ao enviar candidatura. Tente novamente.');
+                const errorData = await response.json();
+                alert('Erro ao enviar: ' + (errorData.error || 'Tente novamente.'));
             }
         } catch (error) {
             console.error('Erro:', error);
