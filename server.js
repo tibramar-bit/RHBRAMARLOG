@@ -1,48 +1,29 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const session = require('express-session');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const port = process.env.PORT || 3000;
+const host = '0.0.0.0';
 
-// Configuração do Banco de Dados SQLite
-const dbPath = path.resolve(__dirname, 'database.db');
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('Erro ao abrir o banco de dados SQLite:', err.message);
-    } else {
-        console.log('Conectado ao banco de dados SQLite em:', dbPath);
-        db.run(`CREATE TABLE IF NOT EXISTS candidatos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nome_completo TEXT NOT NULL,
-            idade INTEGER NOT NULL,
-            forma_recrutamento TEXT,
-            indicacao_de TEXT,
-            cargo_pretendido TEXT NOT NULL,
-            tem_transporte TEXT,
-            reside_em TEXT,
-            naturalidade TEXT NOT NULL,
-            estado_civil TEXT NOT NULL,
-            quantidade_filhos INTEGER NOT NULL,
-            escolaridade TEXT,
-            idiomas TEXT,
-            informatica TEXT,
-            experiencia_fora_pais TEXT,
-            quais_paises TEXT,
-            primeiro_emprego INTEGER DEFAULT 0,
-            experiencias TEXT,
-            motivacao TEXT NOT NULL,
-            dificuldade_interpessoal TEXT NOT NULL,
-            habilidades_competencias TEXT NOT NULL,
-            pretensao_salarial TEXT NOT NULL,
-            status TEXT DEFAULT 'Em Análise',
-            data_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`);
+// Banco de Dados JSON (Alternativa definitiva ao SQLite para o Render)
+const DB_FILE = path.resolve(__dirname, 'database.json');
+
+// Função para ler o banco
+function getDb() {
+    if (!fs.existsSync(DB_FILE)) {
+        fs.writeFileSync(DB_FILE, JSON.stringify({ candidatos: [] }, null, 2));
     }
-});
+    return JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
+}
+
+// Função para salvar no banco
+function saveDb(data) {
+    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+}
 
 // Middleware
 app.use(cors());
@@ -51,19 +32,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
 // Rota para a página inicial
-app.get('/', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'index.html'));
-});
-
-// Rota para a página de login
-app.get('/login', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'login.html'));
-});
-
-// Rota para a página administrativa
-app.get('/admin', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'admin.html'));
-});
+app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, 'index.html')));
+app.get('/login', (req, res) => res.sendFile(path.resolve(__dirname, 'login.html')));
+app.get('/admin', (req, res) => res.sendFile(path.resolve(__dirname, 'admin.html')));
 
 app.use(session({
     secret: 'bramarlog-secret-key',
@@ -74,27 +45,24 @@ app.use(session({
 
 // API de Cadastro
 app.post('/api/candidatos', (req, res) => {
-    const d = req.body;
-    const sql = `INSERT INTO candidatos (
-        nome_completo, idade, forma_recrutamento, indicacao_de, cargo_pretendido, 
-        tem_transporte, reside_em, naturalidade, estado_civil, quantidade_filhos, 
-        escolaridade, idiomas, informatica, experiencia_fora_pais, quais_paises, 
-        primeiro_emprego, experiencias, motivacao, dificuldade_interpessoal, 
-        habilidades_competencias, pretensao_salarial
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    try {
+        const d = req.body;
+        const db = getDb();
+        
+        const novoCandidato = {
+            id: Date.now(),
+            ...d,
+            status: 'Em Análise',
+            data_envio: new Date().toISOString()
+        };
 
-    const params = [
-        d.nome_completo, d.idade, d.forma_recrutamento, d.indicacao_de, d.cargo_pretendido,
-        d.tem_transporte, d.reside_em, d.naturalidade, d.estado_civil, d.quantidade_filhos,
-        JSON.stringify(d.escolaridade), JSON.stringify(d.idiomas), d.informatica, d.experiencia_fora_pais, d.quais_paises,
-        d.primeiro_emprego ? 1 : 0, JSON.stringify(d.experiencias), d.motivacao, d.dificuldade_interpessoal,
-        d.habilidades_competencias, d.pretensao_salarial
-    ];
-
-    db.run(sql, params, function(err) {
-        if (err) return res.status(400).json({ error: err.message });
-        res.json({ message: 'Sucesso!', id: this.lastID });
-    });
+        db.candidatos.push(novoCandidato);
+        saveDb(db);
+        
+        res.json({ message: 'Sucesso!', id: novoCandidato.id });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
 });
 
 // Login do ADM
@@ -120,34 +88,46 @@ const checkAuth = (req, res, next) => {
 
 // Listar Candidatos
 app.get('/api/candidatos', checkAuth, (req, res) => {
-    const sql = "SELECT * FROM candidatos ORDER BY data_envio DESC";
-    db.all(sql, [], (err, rows) => {
-        if (err) return res.status(400).json({ error: err.message });
-        res.json(rows);
-    });
+    try {
+        const db = getDb();
+        res.json(db.candidatos.sort((a, b) => new Date(b.data_envio) - new Date(a.data_envio)));
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
 });
 
 // Atualizar Status
 app.put('/api/candidatos/:id', checkAuth, (req, res) => {
-    const sql = `UPDATE candidatos SET status = ? WHERE id = ?`;
-    const params = [req.body.status, req.params.id];
-    db.run(sql, params, (err) => {
-        if (err) return res.status(400).json({ error: err.message });
-        res.json({ message: 'OK' });
-    });
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        const db = getDb();
+        
+        const index = db.candidatos.findIndex(c => c.id == id);
+        if (index !== -1) {
+            db.candidatos[index].status = status;
+            saveDb(db);
+            res.json({ message: 'OK' });
+        } else {
+            res.status(404).json({ error: 'Não encontrado' });
+        }
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
 });
 
 // Apagar Candidato
 app.delete('/api/candidatos/:id', checkAuth, (req, res) => {
-    const sql = `DELETE FROM candidatos WHERE id = ?`;
-    db.run(sql, req.params.id, (err) => {
-        if (err) return res.status(400).json({ error: err.message });
+    try {
+        const { id } = req.params;
+        const db = getDb();
+        
+        db.candidatos = db.candidatos.filter(c => c.id != id);
+        saveDb(db);
         res.json({ message: 'OK' });
-    });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
 });
 
-const host = '0.0.0.0';
-
-app.listen(port, host, () => {
-    console.log(`Servidor rodando em http://${host}:${port}`);
-});
+app.listen(port, host, () => console.log(`Rodando em http://${host}:${port}`));
