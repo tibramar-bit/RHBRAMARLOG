@@ -1,9 +1,15 @@
 // Configuração Supabase
 const SUPABASE_URL = 'https://qefixlmqxlppblfablnf.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_ezBVjQjOIjBmzjK_CE2tLg_8iDMFBG_'; // Verifique se esta é a anon key correta (ey...)
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_KEY = 'sb_publishable_ezBVjQjOIjBmzjK_CE2tLg_8iDMFBG_'; 
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Garantir que a tela de boas-vindas suma mesmo se a animação falhar
+    setTimeout(() => {
+        const welcome = document.getElementById('welcome-screen');
+        if (welcome) welcome.style.display = 'none';
+    }, 4500);
+
     const form = document.getElementById('recruitment-form');
     const container = document.getElementById('experiencias-container');
     const addBtn = document.getElementById('add-experiencia');
@@ -160,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         data.experiencias = JSON.stringify(data.experiencias);
 
         try {
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('candidatos')
                 .insert([data]);
 
