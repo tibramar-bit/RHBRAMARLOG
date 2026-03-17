@@ -49,10 +49,20 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
-// Rotas HTML
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+// Rota para a página inicial
+app.get('/', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'index.html'));
+});
+
+// Rota para a página de login
+app.get('/login', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'login.html'));
+});
+
+// Rota para a página administrativa
+app.get('/admin', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'admin.html'));
+});
 
 app.use(session({
     secret: 'bramarlog-secret-key',
