@@ -7,12 +7,10 @@ const fs = require('fs');
 
 const app = express();
 const port = process.env.PORT || 3000;
-const host = '0.0.0.0';
 
-// Banco de Dados JSON (Alternativa definitiva ao SQLite para o Render)
+// Banco de Dados JSON
 const DB_FILE = path.resolve(__dirname, 'database.json');
 
-// Função para ler o banco
 function getDb() {
     if (!fs.existsSync(DB_FILE)) {
         fs.writeFileSync(DB_FILE, JSON.stringify({ candidatos: [] }, null, 2));
@@ -20,7 +18,6 @@ function getDb() {
     return JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
 }
 
-// Função para salvar no banco
 function saveDb(data) {
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
 }
@@ -29,9 +26,11 @@ function saveDb(data) {
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Servir arquivos estáticos (A ordem importa!)
 app.use(express.static(__dirname));
 
-// Rota para a página inicial
+// Rotas HTML
 app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, 'index.html')));
 app.get('/login', (req, res) => res.sendFile(path.resolve(__dirname, 'login.html')));
 app.get('/admin', (req, res) => res.sendFile(path.resolve(__dirname, 'admin.html')));
@@ -130,4 +129,6 @@ app.delete('/api/candidatos/:id', checkAuth, (req, res) => {
     }
 });
 
-app.listen(port, host, () => console.log(`Rodando em http://${host}:${port}`));
+app.listen(port, () => console.log(`Servidor rodando na porta ${port}`));
+
+module.exports = app;
