@@ -1,6 +1,6 @@
 // Configuração Supabase
 const SUPABASE_URL = 'https://qefixlmqxlppblfablnf.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_ezBVjQjOIjBmzjK_CE2tLg_8iDMFBG_'; // Verifique se esta é a anon key correta (ey...)
+const SUPABASE_KEY = 'sb_publishable_ezBVjQjOIjBmzjK_CE2tLg_8iDMFBG_'; 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Verificar login no GitHub Pages
@@ -40,7 +40,7 @@ async function loadCandidatos() {
                     </span>
                 </td>
                 <td class="p-4 space-x-2">
-                    <button onclick='viewCandidato(${JSON.stringify(c)})' class="text-blue-600 hover:text-blue-800 font-medium">Ver/Editar</button>
+                    <button onclick='viewCandidato(${JSON.stringify(c).replace(/'/g, "&#39;")})' class="text-blue-600 hover:text-blue-800 font-medium">Ver/Editar</button>
                     <button onclick='deleteCandidato(${c.id})' class="text-red-600 hover:text-red-800 font-medium">Apagar</button>
                 </td>
             `;
