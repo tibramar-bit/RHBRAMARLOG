@@ -75,9 +75,10 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Tem Transporte?</label>
-                        <div class="mt-2 space-x-4">
+                        <div class="mt-2 flex items-center space-x-4">
                             <label><input type="radio" name="tem_transporte" value="SIM" class="mr-2"> Sim</label>
                             <label><input type="radio" name="tem_transporte" value="NÃO" class="mr-2"> Não</label>
+                            <input type="text" name="qual_transporte" placeholder="Qual?" class="flex-1 border p-2 rounded ml-4">
                         </div>
                     </div>
                 </div>
@@ -93,7 +94,13 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Estado Civil *</label>
-                        <input type="text" name="estado_civil" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                        <select name="estado_civil" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                            <option value="">Selecione...</option>
+                            <option value="SOLTEIRO">Solteiro</option>
+                            <option value="CASADO">Casado</option>
+                            <option value="UNIÃO ESTÁVEL">União estável</option>
+                            <option value="VIÚVO">Viúvo</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Nº de Filhos *</label>
@@ -122,14 +129,23 @@
                         </div>
                     </div>
                     <!-- Técnico -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div class="flex items-center space-x-2 pt-6">
                             <input type="checkbox" name="escolaridade_tecnico" id="tecnico">
-                            <label for="tecnico">Técnico</label>
+                            <label for="tecnico">Técnico (Qual?)</label>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Instituição</label>
-                            <input type="text" name="inst_tecnico" class="mt-1 block w-full border p-2">
+                            <label class="block text-sm font-medium text-gray-700">Qual Técnico?</label>
+                            <input type="text" name="qual_tecnico" class="mt-1 block w-full border p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Status</label>
+                            <select name="tecnico_status" class="mt-1 block w-full border p-2">
+                                <option value="">Selecione...</option>
+                                <option value="Completo">Completo</option>
+                                <option value="Incompleto">Incompleto</option>
+                                <option value="Cursando">Cursando</option>
+                            </select>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Período</label>
@@ -150,8 +166,8 @@
                                 <input type="text" name="inst_superior" class="mt-1 block w-full border p-2">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Situação</label>
-                                <input type="text" name="sit_superior" class="mt-1 block w-full border p-2">
+                                <label class="block text-sm font-medium text-gray-700">Qual curso?</label>
+                                <input type="text" name="curso_superior" class="mt-1 block w-full border p-2">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Período</label>
@@ -166,15 +182,109 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Idiomas (Inglês)</label>
-                            <select name="ingles_nivel" class="mt-1 block w-full border p-2">
-                                <option value="">Não possui</option>
-                                <option value="Básico">Básico</option>
-                                <option value="Intermediário">Intermediário</option>
-                                <option value="Avançado">Avançado</option>
-                                <option value="Fluente">Fluente</option>
-                            </select>
+                        <div class="space-y-4">
+                            <label class="block text-sm font-medium text-gray-700">Quais idiomas você fala?</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 bg-gray-50 p-4 rounded-lg border">
+                                <!-- Inglês -->
+                                <div class="flex flex-col space-y-1">
+                                    <label class="flex items-center space-x-2 text-sm font-medium">
+                                        <input type="checkbox" name="idioma_escolhido" value="Inglês" class="rounded border-gray-300">
+                                        <span>Inglês</span>
+                                    </label>
+                                    <select name="nivel_ingles" class="text-xs border p-1 rounded bg-white mt-1">
+                                        <option value="">Nível...</option>
+                                        <option value="Básico">Básico</option>
+                                        <option value="Intermediário">Intermediário</option>
+                                        <option value="Avançado">Avançado</option>
+                                        <option value="Fluente">Fluente</option>
+                                    </select>
+                                </div>
+                                <!-- Espanhol -->
+                                <div class="flex flex-col space-y-1">
+                                    <label class="flex items-center space-x-2 text-sm font-medium">
+                                        <input type="checkbox" name="idioma_escolhido" value="Espanhol" class="rounded border-gray-300">
+                                        <span>Espanhol</span>
+                                    </label>
+                                    <select name="nivel_espanhol" class="text-xs border p-1 rounded bg-white mt-1">
+                                        <option value="">Nível...</option>
+                                        <option value="Básico">Básico</option>
+                                        <option value="Intermediário">Intermediário</option>
+                                        <option value="Avançado">Avançado</option>
+                                        <option value="Fluente">Fluente</option>
+                                    </select>
+                                </div>
+                                <!-- Francês -->
+                                <div class="flex flex-col space-y-1">
+                                    <label class="flex items-center space-x-2 text-sm font-medium">
+                                        <input type="checkbox" name="idioma_escolhido" value="Francês" class="rounded border-gray-300">
+                                        <span>Francês</span>
+                                    </label>
+                                    <select name="nivel_frances" class="text-xs border p-1 rounded bg-white mt-1">
+                                        <option value="">Nível...</option>
+                                        <option value="Básico">Básico</option>
+                                        <option value="Intermediário">Intermediário</option>
+                                        <option value="Avançado">Avançado</option>
+                                        <option value="Fluente">Fluente</option>
+                                    </select>
+                                </div>
+                                <!-- Alemão -->
+                                <div class="flex flex-col space-y-1">
+                                    <label class="flex items-center space-x-2 text-sm font-medium">
+                                        <input type="checkbox" name="idioma_escolhido" value="Alemão" class="rounded border-gray-300">
+                                        <span>Alemão</span>
+                                    </label>
+                                    <select name="nivel_alemao" class="text-xs border p-1 rounded bg-white mt-1">
+                                        <option value="">Nível...</option>
+                                        <option value="Básico">Básico</option>
+                                        <option value="Intermediário">Intermediário</option>
+                                        <option value="Avançado">Avançado</option>
+                                        <option value="Fluente">Fluente</option>
+                                    </select>
+                                </div>
+                                <!-- Italiano -->
+                                <div class="flex flex-col space-y-1">
+                                    <label class="flex items-center space-x-2 text-sm font-medium">
+                                        <input type="checkbox" name="idioma_escolhido" value="Italiano" class="rounded border-gray-300">
+                                        <span>Italiano</span>
+                                    </label>
+                                    <select name="nivel_italiano" class="text-xs border p-1 rounded bg-white mt-1">
+                                        <option value="">Nível...</option>
+                                        <option value="Básico">Básico</option>
+                                        <option value="Intermediário">Intermediário</option>
+                                        <option value="Avançado">Avançado</option>
+                                        <option value="Fluente">Fluente</option>
+                                    </select>
+                                </div>
+                                <!-- Japonês -->
+                                <div class="flex flex-col space-y-1">
+                                    <label class="flex items-center space-x-2 text-sm font-medium">
+                                        <input type="checkbox" name="idioma_escolhido" value="Japonês" class="rounded border-gray-300">
+                                        <span>Japonês</span>
+                                    </label>
+                                    <select name="nivel_japones" class="text-xs border p-1 rounded bg-white mt-1">
+                                        <option value="">Nível...</option>
+                                        <option value="Básico">Básico</option>
+                                        <option value="Intermediário">Intermediário</option>
+                                        <option value="Avançado">Avançado</option>
+                                        <option value="Fluente">Fluente</option>
+                                    </select>
+                                </div>
+                                <!-- Outro -->
+                                <div class="flex flex-col space-y-1">
+                                    <label class="flex items-center space-x-2 text-sm font-medium">
+                                        <input type="checkbox" name="idioma_escolhido" value="Outro" class="rounded border-gray-300">
+                                        <span>Outro</span>
+                                    </label>
+                                    <input type="text" name="outro_idioma_nome" placeholder="Qual?" class="text-xs border p-1 rounded bg-white mt-1">
+                                    <select name="nivel_outro" class="text-xs border p-1 rounded bg-white mt-1">
+                                        <option value="">Nível...</option>
+                                        <option value="Básico">Básico</option>
+                                        <option value="Intermediário">Intermediário</option>
+                                        <option value="Avançado">Avançado</option>
+                                        <option value="Fluente">Fluente</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Informática</label>

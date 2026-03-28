@@ -23,12 +23,16 @@ document.addEventListener('DOMContentLoaded', () => {
         card.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium">Empresa</label>
-                    <input type="text" name="empresa_${experienciaCount}" class="mt-1 block w-full border p-2">
+                    <label class="block text-sm font-medium">Empresa *</label>
+                    <input type="text" name="empresa_${experienciaCount}" required class="mt-1 block w-full border p-2">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium">Cargo</label>
-                    <input type="text" name="cargo_${experienciaCount}" class="mt-1 block w-full border p-2">
+                    <label class="block text-sm font-medium">Telefone da Empresa *</label>
+                    <input type="tel" name="telefone_empresa_${experienciaCount}" required class="mt-1 block w-full border p-2" placeholder="(00) 0000-0000">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Cargo *</label>
+                    <input type="text" name="cargo_${experienciaCount}" required class="mt-1 block w-full border p-2">
                 </div>
                 <div>
                     <label class="block text-sm font-medium">Período</label>
@@ -113,21 +117,47 @@ document.addEventListener('DOMContentLoaded', () => {
             indicacao_de: formData.get('indicacao_de'),
             cargo_pretendido: formData.get('cargo_pretendido'),
             tem_transporte: formData.get('tem_transporte'),
+            qual_transporte: formData.get('qual_transporte'),
             reside_em: formData.get('reside_em'),
             naturalidade: formData.get('naturalidade'),
             estado_civil: formData.get('estado_civil'),
             quantidade_filhos: parseInt(formData.get('quantidade_filhos')),
             escolaridade: JSON.stringify({
                 fundamental: formData.get('escolaridade_2grau') === 'on',
+                inst_2grau: formData.get('inst_2grau'),
+                periodo_2grau: formData.get('periodo_2grau'),
                 tecnico: formData.get('escolaridade_tecnico') === 'on',
+                qual_tecnico: formData.get('qual_tecnico'),
+                tecnico_status: formData.get('tecnico_status'),
+                periodo_tecnico: formData.get('periodo_tecnico'),
                 superior_status: formData.get('superior_status'),
                 inst_superior: formData.get('inst_superior'),
+                curso_superior: formData.get('curso_superior'),
+                periodo_superior: formData.get('periodo_superior'),
                 outros: formData.get('outros_cursos')
             }),
-            idiomas: JSON.stringify({
-                ingles_nivel: formData.get('ingles_nivel'),
-                obs: formData.get('idioma_obs')
-            }),
+            idiomas: JSON.stringify(() => {
+                const selecionados = [];
+                const checkboxes = form.querySelectorAll('input[name="idioma_escolhido"]:checked');
+                checkboxes.forEach(cb => {
+                    const idioma = cb.value;
+                    let nivel = '';
+                    if (idioma === 'Inglês') nivel = formData.get('nivel_ingles');
+                    else if (idioma === 'Espanhol') nivel = formData.get('nivel_espanhol');
+                    else if (idioma === 'Francês') nivel = formData.get('nivel_frances');
+                    else if (idioma === 'Alemão') nivel = formData.get('nivel_alemao');
+                    else if (idioma === 'Italiano') nivel = formData.get('nivel_italiano');
+                    else if (idioma === 'Japonês') nivel = formData.get('nivel_japones');
+                    else if (idioma === 'Outro') {
+                        const nome = formData.get('outro_idioma_nome');
+                        const lvl = formData.get('nivel_outro');
+                        selecionados.push({ idioma: nome || 'Outro', nivel: lvl });
+                        return;
+                    }
+                    selecionados.push({ idioma, nivel });
+                });
+                return selecionados;
+            })(),
             informatica: formData.get('informatica'),
             experiencia_fora_pais: formData.get('experiencia_exterior'),
             quais_paises: formData.get('quais_paises'),
@@ -146,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (empresa) {
                     data.experiencias.push({
                         empresa: empresa,
+                        telefone_empresa: card.querySelector(`input[name^="telefone_empresa_"]`).value,
                         cargo: card.querySelector(`input[name^="cargo_"]`).value,
                         periodo: card.querySelector(`input[name^="periodo_"]`).value,
                         area: card.querySelector(`input[name^="area_"]`).value,

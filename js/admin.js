@@ -102,75 +102,105 @@ function viewCandidato(c) {
     
     // Parse JSON data
     const escolaridade = typeof c.escolaridade === 'string' ? JSON.parse(c.escolaridade || '{}') : (c.escolaridade || {});
-    const idiomas = typeof c.idiomas === 'string' ? JSON.parse(c.idiomas || '{}') : (c.idiomas || {});
+    const idiomas = typeof c.idiomas === 'string' ? JSON.parse(c.idiomas || '[]') : (c.idiomas || []);
     const experiencias = typeof c.experiencias === 'string' ? JSON.parse(c.experiencias || '[]') : (c.experiencias || []);
 
     content.innerHTML = `
-        <div id="pdf-container" class="space-y-6">
-            <header class="text-center border-b pb-4">
-                <h1 class="text-3xl font-bold text-blue-900">Currículo de Recrutamento</h1>
-                <p class="text-gray-500">Enviado em: ${new Date(c.data_envio).toLocaleString()}</p>
+        <div id="pdf-container" class="space-y-8 bg-white p-12 max-w-[850px] mx-auto shadow-sm border">
+            <header class="text-center border-b-4 border-blue-900 pb-6 mb-10">
+                <img src="img/logo.jpg" alt="Logo Bramarlog" onerror="this.style.display='none'" class="w-40 mx-auto mb-6">
+                <h1 class="text-4xl font-extrabold text-blue-900 tracking-tight">CURRÍCULO DE RECRUTAMENTO</h1>
+                <p class="text-gray-600 font-semibold uppercase tracking-widest mt-2">Bramarlog Logística</p>
             </header>
 
-            <section class="grid grid-cols-2 gap-4">
-                <div class="space-y-1">
-                    <p><strong>Nome:</strong> ${c.nome_completo}</p>
-                    <p><strong>Idade:</strong> ${c.idade}</p>
-                    <p><strong>Cargo Pretendido:</strong> ${c.cargo_pretendido}</p>
-                    <p><strong>Forma Recrutamento:</strong> ${c.forma_recrutamento || '-'}</p>
-                    <p><strong>Indicação:</strong> ${c.indicacao_de || '-'}</p>
-                    <p><strong>Transporte:</strong> ${c.tem_transporte || '-'}</p>
+            <section class="grid grid-cols-2 gap-x-12 gap-y-6 text-base mb-10">
+                <div class="space-y-3">
+                    <p class="border-b border-gray-100 pb-2"><strong>Nome:</strong> ${c.nome_completo}</p>
+                    <p class="border-b border-gray-100 pb-2"><strong>Idade:</strong> ${c.idade} anos</p>
+                    <p class="border-b border-gray-100 pb-2"><strong>Cargo Pretendido:</strong> ${c.cargo_pretendido}</p>
+                    <p class="border-b border-gray-100 pb-2"><strong>Forma Recrutamento:</strong> ${c.forma_recrutamento || '-'}</p>
+                    <p class="border-b border-gray-100 pb-2"><strong>Indicação:</strong> ${c.indicacao_de || '-'}</p>
                 </div>
-                <div class="space-y-1">
-                    <p><strong>Reside em:</strong> ${c.reside_em || '-'}</p>
-                    <p><strong>Naturalidade:</strong> ${c.naturalidade}</p>
-                    <p><strong>Estado Civil:</strong> ${c.estado_civil}</p>
-                    <p><strong>Qtd Filhos:</strong> ${c.quantidade_filhos}</p>
-                    <p><strong>Pretensão Salarial:</strong> ${c.pretensao_salarial}</p>
+                <div class="space-y-3">
+                    <p class="border-b border-gray-100 pb-2"><strong>Reside em:</strong> ${c.reside_em || '-'}</p>
+                    <p class="border-b border-gray-100 pb-2"><strong>Naturalidade:</strong> ${c.naturalidade}</p>
+                    <p class="border-b border-gray-100 pb-2"><strong>Estado Civil:</strong> ${c.estado_civil}</p>
+                    <p class="border-b border-gray-100 pb-2"><strong>Qtd Filhos:</strong> ${c.quantidade_filhos}</p>
+                    <p class="border-b border-gray-100 pb-2"><strong>Pretensão Salarial:</strong> ${c.pretensao_salarial}</p>
                 </div>
-            </section>
-
-            <section>
-                <h3 class="text-xl font-bold text-blue-800 border-b pb-1 mb-2">Formação Educacional</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <p><strong>Escolaridade:</strong> ${escolaridade.fundamental ? '2º Grau' : ''} ${escolaridade.tecnico ? '/ Técnico' : ''}</p>
-                    <p><strong>Superior:</strong> ${escolaridade.superior_status || '-'} (${escolaridade.inst_superior || '-'})</p>
-                    <p class="col-span-2"><strong>Outros:</strong> ${escolaridade.outros || '-'}</p>
-                    <p><strong>Idiomas:</strong> ${idiomas.ingles_nivel || 'Não possui'}</p>
-                    <p><strong>Informática:</strong> ${c.informatica || '-'}</p>
-                    <p><strong>Experiência Exterior:</strong> ${c.experiencia_fora_pais || '-'} ${c.quais_paises ? '(' + c.quais_paises + ')' : ''}</p>
+                <div class="col-span-2 border-b border-gray-100 pb-2">
+                    <p><strong>Transporte:</strong> ${c.tem_transporte || '-'} ${c.qual_transporte ? '(' + c.qual_transporte + ')' : ''}</p>
                 </div>
             </section>
 
-            <section>
-                <h3 class="text-xl font-bold text-blue-800 border-b pb-1 mb-2">Experiências Profissionais</h3>
-                ${c.primeiro_emprego ? '<p class="italic text-gray-600">Este é o meu primeiro emprego.</p>' : 
+            <section class="mb-10">
+                <h3 class="text-xl font-bold text-white bg-blue-900 px-4 py-2 mb-6 uppercase tracking-widest rounded-sm">Formação Educacional</h3>
+                <div class="grid grid-cols-1 gap-4 text-base">
+                    ${escolaridade.fundamental ? `
+                        <div class="p-4 bg-gray-50 rounded-md border-l-4 border-blue-900">
+                            <p><strong>2º Grau:</strong> ${escolaridade.inst_2grau || '-'} (${escolaridade.periodo_2grau || '-'})</p>
+                        </div>
+                    ` : ''}
+                    ${escolaridade.tecnico ? `
+                        <div class="p-4 bg-gray-50 rounded-md border-l-4 border-blue-900">
+                            <p><strong>Técnico:</strong> ${escolaridade.qual_tecnico || '-'} - ${escolaridade.tecnico_status || '-'} (${escolaridade.periodo_tecnico || '-'})</p>
+                        </div>
+                    ` : ''}
+                    ${escolaridade.superior_status ? `
+                        <div class="p-4 bg-gray-50 rounded-md border-l-4 border-blue-900">
+                            <p><strong>Superior:</strong> ${escolaridade.curso_superior || '-'} - ${escolaridade.superior_status || '-'} (${escolaridade.inst_superior || '-'}) | Período: ${escolaridade.periodo_superior || '-'}</p>
+                        </div>
+                    ` : ''}
+                    <div class="grid grid-cols-2 gap-6 mt-4 p-2">
+                        <p><strong>Outros:</strong> ${escolaridade.outros || '-'}</p>
+                        <p><strong>Idiomas:</strong> ${Array.isArray(idiomas) && idiomas.length > 0 ? idiomas.map(i => `${i.idioma} (${i.nivel || 'N/I'})`).join(', ') : 'Não possui'}</p>
+                        <p><strong>Informática:</strong> ${c.informatica || '-'}</p>
+                        <p><strong>Exp. Exterior:</strong> ${c.experiencia_fora_pais || '-'} ${c.quais_paises ? '(' + c.quais_paises + ')' : ''}</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-10">
+                <h3 class="text-xl font-bold text-white bg-blue-900 px-4 py-2 mb-6 uppercase tracking-widest rounded-sm">Experiências Profissionais</h3>
+                ${c.primeiro_emprego ? '<p class="italic text-gray-600 p-4 bg-gray-50 rounded">Este é o meu primeiro emprego.</p>' : 
                     experiencias.map((exp, idx) => `
-                        <div class="mb-4 p-3 bg-gray-50 rounded border">
-                            <p class="font-bold text-lg">${idx + 1}. ${exp.empresa} - ${exp.cargo}</p>
-                            <p class="text-sm"><strong>Período:</strong> ${exp.periodo} | <strong>Área:</strong> ${exp.area}</p>
-                            <p class="text-sm mt-1"><strong>Atividade:</strong> ${exp.atividade}</p>
-                            <p class="text-sm"><strong>Salário:</strong> ${exp.salario} | <strong>Benefícios:</strong> ${exp.beneficios.join(', ')}</p>
-                            <p class="text-sm"><strong>Motivo Saída:</strong> ${exp.motivo_saida}</p>
+                        <div class="mb-6 p-4 bg-white rounded-md border border-gray-200 text-base shadow-sm">
+                            <p class="font-bold text-blue-900 uppercase text-lg mb-2">${idx + 1}. ${exp.empresa} - ${exp.cargo}</p>
+                            <div class="grid grid-cols-2 gap-2 text-sm text-gray-600 mb-3">
+                                <p><strong>Telefone:</strong> ${exp.telefone_empresa || '-'}</p>
+                                <p><strong>Período:</strong> ${exp.periodo}</p>
+                                <p><strong>Área:</strong> ${exp.area}</p>
+                                <p><strong>Salário:</strong> ${exp.salario}</p>
+                                <p><strong>Benefícios:</strong> ${exp.beneficios.join(', ')}</p>
+                            </div>
+                            <p class="mt-2 text-gray-800 leading-relaxed"><strong>Atividade:</strong> ${exp.atividade}</p>
+                            <p class="mt-2 text-gray-800"><strong>Motivo Saída:</strong> ${exp.motivo_saida}</p>
                         </div>
                     `).join('')
                 }
             </section>
 
-            <section class="space-y-4">
-                <div>
-                    <h4 class="font-bold text-blue-800">Motivação</h4>
-                    <p class="bg-gray-50 p-2 border rounded">${c.motivacao}</p>
-                </div>
-                <div>
-                    <h4 class="font-bold text-blue-800">Dificuldade Interpessoal</h4>
-                    <p class="bg-gray-50 p-2 border rounded">${c.dificuldade_interpessoal}</p>
-                </div>
-                <div>
-                    <h4 class="font-bold text-blue-800">Habilidades e Competências</h4>
-                    <p class="bg-gray-50 p-2 border rounded">${c.habilidades_competencias}</p>
+            <section class="space-y-6 text-base mb-10">
+                <h3 class="text-xl font-bold text-white bg-blue-900 px-4 py-2 mb-6 uppercase tracking-widest rounded-sm">Informações Adicionais</h3>
+                <div class="grid grid-cols-1 gap-8">
+                    <div class="p-4 bg-gray-50 rounded-md border-t-2 border-blue-900">
+                        <h4 class="font-bold text-blue-900 uppercase text-sm mb-3">Motivação</h4>
+                        <p class="text-gray-800 leading-relaxed italic font-light">${c.motivacao}</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-md border-t-2 border-blue-900">
+                        <h4 class="font-bold text-blue-900 uppercase text-sm mb-3">Dificuldade Interpessoal</h4>
+                        <p class="text-gray-800 leading-relaxed italic font-light">${c.dificuldade_interpessoal}</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-md border-t-2 border-blue-900">
+                        <h4 class="font-bold text-blue-900 uppercase text-sm mb-3">Habilidades e Competências</h4>
+                        <p class="text-gray-800 leading-relaxed italic font-light">${c.habilidades_competencias}</p>
+                    </div>
                 </div>
             </section>
+
+            <footer class="text-center text-xs text-gray-400 mt-16 border-t pt-6 italic">
+                Documento oficial gerado eletronicamente em ${new Date().toLocaleString()} | Bramarlog Logística & Transportes
+            </footer>
         </div>
 
         <div class="mt-8 border-t pt-4">
@@ -193,24 +223,41 @@ async function printCandidatePDF() {
     const { jsPDF } = window.jspdf;
     const element = document.getElementById('pdf-container');
     
-    const canvas = await html2canvas(element, { scale: 2 });
+    // Configurações para melhor qualidade e centralização
+    const canvas = await html2canvas(element, { 
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+    });
+
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('p', 'mm', 'a4');
     
-    const imgWidth = 210; 
-    const pageHeight = 295;  
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
+    const pageWidth = 210;
+    const pageHeight = 297;
+    const margin = 10; // 10mm de margem em todos os lados
+    const contentWidth = pageWidth - (2 * margin);
+    const contentHeight = (canvas.height * contentWidth) / canvas.width;
+    
+    // Aumentar ligeiramente a altura da página útil para evitar cortes abruptos
+    const pageVisibleHeight = pageHeight - (2 * margin);
+    
+    let heightLeft = contentHeight;
     let position = 0;
+    let pageNum = 1;
 
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
+    // Primeira página
+    pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, contentHeight);
+    heightLeft -= pageVisibleHeight;
 
-    while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
+    // Páginas adicionais se necessário
+    while (heightLeft > 0) {
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        position = -(pageNum * pageVisibleHeight) + margin;
+        pdf.addImage(imgData, 'PNG', margin, position, contentWidth, contentHeight);
+        heightLeft -= pageVisibleHeight;
+        pageNum++;
     }
     
     pdf.save(`curriculo_${currentCandidato.nome_completo.replace(/\s+/g, '_')}.pdf`);
