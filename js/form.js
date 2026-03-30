@@ -162,14 +162,17 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             // Construir objeto de dados
+            const temTransporte = getRadioValue('tem_transporte') || 'NÃO';
+            const qualTransporte = formData.get('qual_transporte') || '';
+
             const data = {
                 nome_completo: formData.get('nome_completo'),
                 idade: parseInt(formData.get('idade')) || 0,
                 forma_recrutamento: formData.get('forma_recrutamento') || '',
                 indicacao_de: formData.get('indicacao_de') || '',
                 cargo_pretendido: formData.get('cargo_pretendido') || '',
-                tem_transporte: getRadioValue('tem_transporte') || 'NÃO',
-                qual_transporte: formData.get('qual_transporte') || '',
+                // Combinar Sim/Não com o detalhe do transporte para evitar erro de coluna inexistente
+                tem_transporte: qualTransporte ? `${temTransporte} (${qualTransporte})` : temTransporte,
                 reside_em: formData.get('reside_em') || '',
                 naturalidade: formData.get('naturalidade') || '',
                 estado_civil: formData.get('estado_civil') || '',
