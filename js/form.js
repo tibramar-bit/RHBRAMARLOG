@@ -3,6 +3,8 @@ const SUPABASE_URL = 'https://qefixlmqxlppblfablnf.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ezBVjQjOIjBmzjK_CE2tLg_8iDMFBG_'; 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+console.log('Form.js carregado - Versão 1.0.2');
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('recruitment-form');
     const container = document.getElementById('experiencias-container');
