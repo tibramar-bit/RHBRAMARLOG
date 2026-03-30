@@ -148,6 +148,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     else if (idioma === 'Alemão') nivel = formData.get('nivel_alemao');
                     else if (idioma === 'Italiano') nivel = formData.get('nivel_italiano');
                     else if (idioma === 'Japonês') nivel = formData.get('nivel_japones');
+                    else if (idioma === 'Mandarim') nivel = formData.get('nivel_mandarim');
+                    else if (idioma === 'Hindi') nivel = formData.get('nivel_hindi');
+                    else if (idioma === 'Árabe') nivel = formData.get('nivel_arabe');
+                    else if (idioma === 'Russo') nivel = formData.get('nivel_russo');
+                    else if (idioma === 'Português') nivel = formData.get('nivel_portugues');
                     else if (idioma === 'Outro') {
                         const nome = formData.get('outro_idioma_nome');
                         const lvl = formData.get('nivel_outro');
