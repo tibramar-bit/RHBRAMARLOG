@@ -112,10 +112,11 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        // Validação básica
         const requiredFields = form.querySelectorAll('[required]');
         let valid = true;
         requiredFields.forEach(field => {
-            if (!field.value.trim()) {
+            if (!field.value || !field.value.trim()) {
                 valid = false;
                 field.classList.add('border-red-500');
             } else {
@@ -128,104 +129,117 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const formData = new FormData(form);
-        const data = {
-            nome_completo: formData.get('nome_completo'),
-            idade: parseInt(formData.get('idade')),
-            forma_recrutamento: formData.get('forma_recrutamento'),
-            indicacao_de: formData.get('indicacao_de'),
-            cargo_pretendido: formData.get('cargo_pretendido'),
-            tem_transporte: formData.get('tem_transporte'),
-            qual_transporte: formData.get('qual_transporte'),
-            reside_em: formData.get('reside_em'),
-            naturalidade: formData.get('naturalidade'),
-            estado_civil: formData.get('estado_civil'),
-            quantidade_filhos: parseInt(formData.get('quantidade_filhos')),
-            escolaridade: JSON.stringify({
-                fundamental: formData.get('escolaridade_2grau') === 'on',
-                inst_2grau: formData.get('inst_2grau'),
-                periodo_2grau: formData.get('periodo_2grau'),
-                tecnico: formData.get('escolaridade_tecnico') === 'on',
-                qual_tecnico: formData.get('qual_tecnico'),
-                tecnico_status: formData.get('tecnico_status'),
-                periodo_tecnico: formData.get('periodo_tecnico'),
-                superior_status: formData.get('superior_status'),
-                inst_superior: formData.get('inst_superior'),
-                curso_superior: formData.get('curso_superior'),
-                periodo_superior: formData.get('periodo_superior'),
-                outros: formData.get('outros_cursos')
-            }),
-            idiomas: JSON.stringify(() => {
+        try {
+            const formData = new FormData(form);
+            
+            // Função auxiliar para pegar valor de rádio com fallback
+            const getRadioValue = (name) => {
+                const radios = form.querySelectorAll(`input[name="${name}"]:checked`);
+                return radios.length > 0 ? radios[0].value : null;
+            };
+
+            // Mapear idiomas de forma clara
+            const mapIdiomas = () => {
                 const selecionados = [];
                 const checkboxes = form.querySelectorAll('input[name="idioma_escolhido"]:checked');
                 checkboxes.forEach(cb => {
                     const idioma = cb.value;
                     let nivel = '';
-                    if (idioma === 'Inglês') nivel = formData.get('nivel_ingles');
-                    else if (idioma === 'Espanhol') nivel = formData.get('nivel_espanhol');
-                    else if (idioma === 'Francês') nivel = formData.get('nivel_frances');
-                    else if (idioma === 'Alemão') nivel = formData.get('nivel_alemao');
-                    else if (idioma === 'Italiano') nivel = formData.get('nivel_italiano');
-                    else if (idioma === 'Japonês') nivel = formData.get('nivel_japones');
-                    else if (idioma === 'Mandarim') nivel = formData.get('nivel_mandarim');
-                    else if (idioma === 'Hindi') nivel = formData.get('nivel_hindi');
-                    else if (idioma === 'Árabe') nivel = formData.get('nivel_arabe');
-                    else if (idioma === 'Russo') nivel = formData.get('nivel_russo');
-                    else if (idioma === 'Português') nivel = formData.get('nivel_portugues');
-                    else if (idioma === 'Outro') {
+                    
+                    // Busca o seletor de nível correspondente ao idioma
+                    const fieldName = `nivel_${idioma.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace("ê", "e").replace("ã", "a")}`;
+                    nivel = formData.get(fieldName) || '';
+
+                    if (idioma === 'Outro') {
                         const nome = formData.get('outro_idioma_nome');
                         const lvl = formData.get('nivel_outro');
-                        selecionados.push({ idioma: nome || 'Outro', nivel: lvl });
-                        return;
+                        selecionados.push({ idioma: nome || 'Outro', nivel: lvl || '' });
+                    } else {
+                        selecionados.push({ idioma, nivel });
                     }
-                    selecionados.push({ idioma, nivel });
                 });
                 return selecionados;
-            })(),
-            informatica: formData.get('informatica'),
-            experiencia_fora_pais: formData.get('experiencia_exterior'),
-            quais_paises: formData.get('quais_paises'),
-            primeiro_emprego: formData.get('primeiro_emprego') === 'on',
-            experiencias: [],
-            motivacao: formData.get('motivacao'),
-            dificuldade_interpessoal: formData.get('dificuldade_interpessoal'),
-            habilidades_competencias: formData.get('habilidades_competencias'),
-            pretensao_salarial: formData.get('pretensao_salarial')
-        };
+            };
 
-        if (!data.primeiro_emprego) {
-            const cards = container.querySelectorAll('.experiencia-card');
-            cards.forEach((card, index) => {
-                const empresa = card.querySelector(`input[name^="empresa_"]`).value;
-                if (empresa) {
-                    data.experiencias.push({
-                        empresa: empresa,
-                        telefone_empresa: card.querySelector(`input[name^="telefone_empresa_"]`).value,
-                        cargo: card.querySelector(`input[name^="cargo_"]`).value,
-                        periodo: card.querySelector(`input[name^="periodo_"]`).value,
-                        area: card.querySelector(`input[name^="area_"]`).value,
-                        atividade: card.querySelector(`textarea[name^="atividade_"]`).value,
-                        salario: card.querySelector(`input[name^="salario_"]`).value,
-                        beneficios: Array.from(card.querySelectorAll(`input[name^="beneficios_"]:checked`)).map(cb => cb.value),
-                        motivo_saida: card.querySelector(`input[name^="motivo_saida_"]`).value
-                    });
-                }
-            });
-        }
-        data.experiencias = JSON.stringify(data.experiencias);
+            // Construir objeto de dados
+            const data = {
+                nome_completo: formData.get('nome_completo'),
+                idade: parseInt(formData.get('idade')) || 0,
+                forma_recrutamento: formData.get('forma_recrutamento') || '',
+                indicacao_de: formData.get('indicacao_de') || '',
+                cargo_pretendido: formData.get('cargo_pretendido') || '',
+                tem_transporte: getRadioValue('tem_transporte') || 'NÃO',
+                qual_transporte: formData.get('qual_transporte') || '',
+                reside_em: formData.get('reside_em') || '',
+                naturalidade: formData.get('naturalidade') || '',
+                estado_civil: formData.get('estado_civil') || '',
+                quantidade_filhos: parseInt(formData.get('quantidade_filhos')) || 0,
+                escolaridade: JSON.stringify({
+                    fundamental: formData.get('escolaridade_2grau') === 'on',
+                    inst_2grau: formData.get('inst_2grau') || '',
+                    periodo_2grau: formData.get('periodo_2grau') || '',
+                    tecnico: formData.get('escolaridade_tecnico') === 'on',
+                    qual_tecnico: formData.get('qual_tecnico') || '',
+                    tecnico_status: formData.get('tecnico_status') || '',
+                    periodo_tecnico: formData.get('periodo_tecnico') || '',
+                    superior_status: formData.get('superior_status') || '',
+                    inst_superior: formData.get('inst_superior') || '',
+                    curso_superior: formData.get('curso_superior') || '',
+                    periodo_superior: formData.get('periodo_superior') || '',
+                    outros: formData.get('outros_cursos') || ''
+                }),
+                idiomas: JSON.stringify(mapIdiomas()),
+                informatica: getRadioValue('informatica') || 'Não tem',
+                experiencia_fora_pais: getRadioValue('experiencia_exterior') || 'NÃO',
+                quais_paises: formData.get('quais_paises') || '',
+                primeiro_emprego: formData.get('primeiro_emprego') === 'on',
+                experiencias: [],
+                motivacao: formData.get('motivacao') || '',
+                dificuldade_interpessoal: formData.get('dificuldade_interpessoal') || '',
+                habilidades_competencias: formData.get('habilidades_competencias') || '',
+                pretensao_salarial: formData.get('pretensao_salarial') || ''
+            };
 
-        try {
+            // Mapear experiências profissionais
+            if (!data.primeiro_emprego) {
+                const cards = container.querySelectorAll('.experiencia-card');
+                cards.forEach((card) => {
+                    const empresaInput = card.querySelector(`input[name^="empresa_"]`);
+                    if (empresaInput && empresaInput.value && empresaInput.value.trim()) {
+                        data.experiencias.push({
+                            empresa: empresaInput.value.trim(),
+                            telefone_empresa: card.querySelector(`input[name^="telefone_empresa_"]`)?.value || '',
+                            cargo: card.querySelector(`input[name^="cargo_"]`)?.value || '',
+                            periodo: card.querySelector(`input[name^="periodo_"]`)?.value || '',
+                            area: card.querySelector(`input[name^="area_"]`)?.value || '',
+                            atividade: card.querySelector(`textarea[name^="atividade_"]`)?.value || '',
+                            salario: card.querySelector(`input[name^="salario_"]`)?.value || '',
+                            beneficios: Array.from(card.querySelectorAll(`input[name^="beneficios_"]:checked`)).map(cb => cb.value),
+                            motivo_saida: card.querySelector(`input[name^="motivo_saida_"]`)?.value || ''
+                        });
+                    }
+                });
+            }
+            data.experiencias = JSON.stringify(data.experiencias);
+
+            console.log('Dados a serem enviados:', data);
+
+            // Enviar para Supabase
             const { error } = await supabaseClient
                 .from('candidatos')
                 .insert([data]);
 
-            if (error) throw error;
+            if (error) {
+                console.error('Erro detalhado do Supabase:', error);
+                throw new Error(error.message);
+            }
 
             alert('Candidatura enviada com sucesso! Boa sorte!');
             form.reset();
             window.location.reload();
+            
         } catch (error) {
-            console.error('Erro:', error);
+            console.error('Erro ao processar formulário:', error);
             alert('Erro ao enviar candidatura: ' + error.message);
         }
     });
