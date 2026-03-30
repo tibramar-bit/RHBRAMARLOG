@@ -107,106 +107,110 @@ function viewCandidato(c) {
 
     content.innerHTML = `
         <style>
-            #pdf-container { width: 210mm; min-height: 297mm; padding: 20mm; margin: 0 auto; box-sizing: border-box; }
-            #pdf-container section { break-inside: avoid; page-break-inside: avoid; margin-bottom: 20px; }
-            .pdf-title-box { background-color: #1e3a8a !important; color: white !important; -webkit-print-color-adjust: exact; padding: 8px 16px; margin-bottom: 16px; border-radius: 2px; }
-            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; font-size: 14px; }
-            .info-item { border-bottom: 1px solid #f3f4f6; padding-bottom: 8px; margin-bottom: 8px; }
-            .exp-card { border: 1px solid #e5e7eb; padding: 16px; border-radius: 6px; margin-bottom: 16px; background-color: white; }
-            .add-info-box { background-color: #f9fafb; border-top: 2px solid #1e3a8a; padding: 16px; border-radius: 4px; margin-bottom: 16px; }
+            #pdf-container { width: 800px; padding: 40px; margin: 0 auto; background-color: white; }
+            #pdf-container section { margin-bottom: 30px; }
+            .pdf-title-box { background-color: #1e3a8a !important; color: white !important; padding: 10px 20px; margin-bottom: 20px; border-radius: 4px; font-weight: bold; text-transform: uppercase; font-size: 18px; }
+            .info-grid { display: flex; flex-wrap: wrap; gap: 20px; font-size: 14px; }
+            .info-col { flex: 1; min-width: 300px; }
+            .info-item { border-bottom: 1px solid #f3f4f6; padding: 10px 0; margin-bottom: 5px; }
+            .exp-card { border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px; margin-bottom: 20px; background-color: #ffffff; }
+            .add-info-box { background-color: #f9fafb; border-top: 3px solid #1e3a8a; padding: 20px; border-radius: 6px; margin-bottom: 20px; }
+            .label-bold { font-weight: bold; color: #1e3a8a; }
         </style>
-        <div id="pdf-container" class="bg-white">
-            <header style="text-align: center; border-bottom: 4px solid #1e3a8a; padding-bottom: 24px; margin-bottom: 40px;">
-                <img src="img/logo.jpg" alt="Logo Bramarlog" onerror="this.style.display='none'" style="width: 160px; margin: 0 auto 24px;">
-                <h1 style="font-size: 32px; font-weight: 800; color: #1e3a8a; margin: 0;">CURRÍCULO DE RECRUTAMENTO</h1>
-                <p style="color: #4b5563; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 8px;">Bramarlog Logística</p>
+        <div id="pdf-container">
+            <header style="text-align: center; border-bottom: 5px solid #1e3a8a; padding-bottom: 30px; margin-bottom: 40px;">
+                <img src="img/logo.jpg" alt="Logo Bramarlog" onerror="this.style.display='none'" style="width: 180px; margin: 0 auto 20px; display: block;">
+                <h1 style="font-size: 36px; font-weight: 800; color: #1e3a8a; margin: 0; letter-spacing: -1px;">CURRÍCULO DE RECRUTAMENTO</h1>
+                <p style="color: #4b5563; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-top: 10px;">Bramarlog Logística & Transportes</p>
             </header>
 
-            <section class="info-grid" style="margin-bottom: 40px;">
-                <div>
-                    <p class="info-item"><strong>Nome:</strong> ${c.nome_completo}</p>
-                    <p class="info-item"><strong>Idade:</strong> ${c.idade} anos</p>
-                    <p class="info-item"><strong>Cargo Pretendido:</strong> ${c.cargo_pretendido}</p>
-                    <p class="info-item"><strong>Forma Recrutamento:</strong> ${c.forma_recrutamento || '-'}</p>
-                    <p class="info-item"><strong>Indicação:</strong> ${c.indicacao_de || '-'}</p>
+            <section class="info-grid">
+                <div class="info-col">
+                    <p class="info-item"><span class="label-bold">Nome:</span> ${c.nome_completo}</p>
+                    <p class="info-item"><span class="label-bold">Idade:</span> ${c.idade} anos</p>
+                    <p class="info-item"><span class="label-bold">Cargo Pretendido:</span> ${c.cargo_pretendido}</p>
+                    <p class="info-item"><span class="label-bold">Forma Recrutamento:</span> ${c.forma_recrutamento || '-'}</p>
+                    <p class="info-item"><span class="label-bold">Indicação:</span> ${c.indicacao_de || '-'}</p>
                 </div>
-                <div>
-                    <p class="info-item"><strong>Reside em:</strong> ${c.reside_em || '-'}</p>
-                    <p class="info-item"><strong>Naturalidade:</strong> ${c.naturalidade}</p>
-                    <p class="info-item"><strong>Estado Civil:</strong> ${c.estado_civil}</p>
-                    <p class="info-item"><strong>Qtd Filhos:</strong> ${c.quantidade_filhos}</p>
-                    <p class="info-item"><strong>Pretensão Salarial:</strong> ${c.pretensao_salarial}</p>
+                <div class="info-col">
+                    <p class="info-item"><span class="label-bold">Reside em:</span> ${c.reside_em || '-'}</p>
+                    <p class="info-item"><span class="label-bold">Naturalidade:</span> ${c.naturalidade}</p>
+                    <p class="info-item"><span class="label-bold">Estado Civil:</span> ${c.estado_civil}</p>
+                    <p class="info-item"><span class="label-bold">Qtd Filhos:</span> ${c.quantidade_filhos}</p>
+                    <p class="info-item"><span class="label-bold">Pretensão Salarial:</span> ${c.pretensao_salarial}</p>
                 </div>
-                <div style="grid-column: span 2; border-bottom: 1px solid #f3f4f6; padding-bottom: 8px;">
-                    <p><strong>Transporte:</strong> ${c.tem_transporte || '-'}</p>
+                <div style="width: 100%; border-bottom: 1px solid #f3f4f6; padding: 10px 0;">
+                    <p><span class="label-bold">Transporte:</span> ${c.tem_transporte || '-'}</p>
                 </div>
             </section>
 
             <section>
-                <h3 class="pdf-title-box">FORMAÇÃO EDUCACIONAL</h3>
-                <div style="display: flex; flex-direction: column; gap: 16px;">
+                <h3 class="pdf-title-box">Formação Educacional</h3>
+                <div style="display: flex; flex-direction: column; gap: 20px;">
                     ${escolaridade.fundamental ? `
-                        <div style="padding: 16px; background-color: #f9fafb; border-left: 4px solid #1e3a8a; border-radius: 4px;">
-                            <p><strong>2º Grau:</strong> ${escolaridade.inst_2grau || '-'} (${escolaridade.periodo_2grau || '-'})</p>
+                        <div style="padding: 20px; background-color: #f9fafb; border-left: 5px solid #1e3a8a; border-radius: 6px;">
+                            <p><span class="label-bold">Ensino Médio:</span> ${escolaridade.inst_2grau || '-'} (${escolaridade.periodo_2grau || '-'})</p>
                         </div>
                     ` : ''}
                     ${escolaridade.tecnico ? `
-                        <div style="padding: 16px; background-color: #f9fafb; border-left: 4px solid #1e3a8a; border-radius: 4px;">
-                            <p><strong>Técnico:</strong> ${escolaridade.qual_tecnico || '-'} - ${escolaridade.tecnico_status || '-'} (${escolaridade.periodo_tecnico || '-'})</p>
+                        <div style="padding: 20px; background-color: #f9fafb; border-left: 5px solid #1e3a8a; border-radius: 6px;">
+                            <p><span class="label-bold">Técnico:</span> ${escolaridade.qual_tecnico || '-'} - ${escolaridade.tecnico_status || '-'} (${escolaridade.periodo_tecnico || '-'})</p>
                         </div>
                     ` : ''}
                     ${escolaridade.superior_status ? `
-                        <div style="padding: 16px; background-color: #f9fafb; border-left: 4px solid #1e3a8a; border-radius: 4px;">
-                            <p><strong>Superior:</strong> ${escolaridade.curso_superior || '-'} - ${escolaridade.superior_status || '-'} (${escolaridade.inst_superior || '-'}) | Período: ${escolaridade.periodo_superior || '-'}</p>
+                        <div style="padding: 20px; background-color: #f9fafb; border-left: 5px solid #1e3a8a; border-radius: 6px;">
+                            <p><span class="label-bold">Ensino Superior:</span> ${escolaridade.curso_superior || '-'} - ${escolaridade.superior_status || '-'} (${escolaridade.inst_superior || '-'}) | Período: ${escolaridade.periodo_superior || '-'}</p>
                         </div>
                     ` : ''}
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 8px; font-size: 14px;">
-                        <p><strong>Outros:</strong> ${escolaridade.outros || '-'}</p>
-                        <p><strong>Idiomas:</strong> ${Array.isArray(idiomas) && idiomas.length > 0 ? idiomas.map(i => `${i.idioma} (${i.nivel || 'N/I'})`).join(', ') : 'Não possui'}</p>
-                        <p><strong>Informática:</strong> ${c.informatica || '-'}</p>
-                        <p><strong>Exp. Exterior:</strong> ${c.experiencia_fora_pais || '-'} ${c.quais_paises ? '(' + c.quais_paises + ')' : ''}</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 10px; font-size: 15px; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px;">
+                        <p><span class="label-bold">Outros Cursos:</span> ${escolaridade.outros || '-'}</p>
+                        <p><span class="label-bold">Idiomas:</span> ${Array.isArray(idiomas) && idiomas.length > 0 ? idiomas.map(i => `${i.idioma} (${i.nivel || 'N/I'})`).join(', ') : 'Não possui'}</p>
+                        <p><span class="label-bold">Informática:</span> ${c.informatica || '-'}</p>
+                        <p><span class="label-bold">Exp. Exterior:</span> ${c.experiencia_fora_pais || '-'} ${c.quais_paises ? '(' + c.quais_paises + ')' : ''}</p>
                     </div>
                 </div>
             </section>
 
             <section>
-                <h3 class="pdf-title-box">EXPERIÊNCIAS PROFISSIONAIS</h3>
-                ${c.primeiro_emprego ? '<p style="font-style: italic; color: #4b5563; padding: 16px; background-color: #f9fafb; border-radius: 4px;">Este é o meu primeiro emprego.</p>' : 
+                <h3 class="pdf-title-box">Experiências Profissionais</h3>
+                ${c.primeiro_emprego ? '<p style="font-style: italic; color: #6b7280; padding: 20px; background-color: #f9fafb; border-radius: 8px; border: 1px dashed #d1d5db;">Este é o meu primeiro emprego.</p>' : 
                     experiencias.map((exp, idx) => `
                         <div class="exp-card">
-                            <p style="font-weight: bold; color: #1e3a8a; text-transform: uppercase; font-size: 18px; margin-bottom: 8px;">${idx + 1}. ${exp.empresa} - ${exp.cargo}</p>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px; color: #4b5563; margin-bottom: 12px;">
-                                <p><strong>Telefone:</strong> ${exp.telefone_empresa || '-'}</p>
-                                <p><strong>Período:</strong> ${exp.periodo}</p>
-                                <p><strong>Área:</strong> ${exp.area}</p>
-                                <p><strong>Salário:</strong> ${exp.salario}</p>
-                                <p><strong>Benefícios:</strong> ${exp.beneficios.join(', ')}</p>
+                            <p style="font-weight: bold; color: #1e3a8a; text-transform: uppercase; font-size: 20px; margin-bottom: 15px; border-bottom: 2px solid #f3f4f6; padding-bottom: 10px;">${idx + 1}. ${exp.empresa} - ${exp.cargo}</p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 15px; color: #374151; margin-bottom: 20px;">
+                                <p><span class="label-bold">Telefone:</span> ${exp.telefone_empresa || '-'}</p>
+                                <p><span class="label-bold">Período:</span> ${exp.periodo}</p>
+                                <p><span class="label-bold">Área:</span> ${exp.area}</p>
+                                <p><span class="label-bold">Salário:</span> ${exp.salario}</p>
+                                <p style="grid-column: span 2;"><span class="label-bold">Benefícios:</span> ${exp.beneficios.join(', ')}</p>
                             </div>
-                            <p style="margin-top: 8px; color: #1f2937; line-height: 1.5;"><strong>Atividade:</strong> ${exp.atividade}</p>
-                            <p style="margin-top: 8px; color: #1f2937;"><strong>Motivo Saída:</strong> ${exp.motivo_saida}</p>
+                            <div style="margin-top: 15px; padding: 15px; background-color: #fcfcfc; border-radius: 4px; border: 1px solid #f3f4f6;">
+                                <p style="margin-bottom: 10px; color: #111827; line-height: 1.6;"><span class="label-bold">Atividade:</span> ${exp.atividade}</p>
+                                <p style="color: #111827;"><span class="label-bold">Motivo Saída:</span> ${exp.motivo_saida}</p>
+                            </div>
                         </div>
                     `).join('')
                 }
             </section>
 
             <section>
-                <h3 class="pdf-title-box">INFORMAÇÕES ADICIONAIS</h3>
+                <h3 class="pdf-title-box">Informações Adicionais</h3>
                 <div class="add-info-box">
-                    <h4 style="font-weight: bold; color: #1e3a8a; text-transform: uppercase; font-size: 14px; margin-bottom: 8px;">Motivação</h4>
-                    <p style="color: #1f2937; line-height: 1.6; font-style: italic;">${c.motivacao}</p>
+                    <h4 class="label-bold" style="text-transform: uppercase; font-size: 15px; margin-bottom: 10px;">Motivação</h4>
+                    <p style="color: #1f2937; line-height: 1.7; font-style: italic; font-size: 15px;">${c.motivacao}</p>
                 </div>
                 <div class="add-info-box">
-                    <h4 style="font-weight: bold; color: #1e3a8a; text-transform: uppercase; font-size: 14px; margin-bottom: 8px;">Dificuldade Interpessoal</h4>
-                    <p style="color: #1f2937; line-height: 1.6; font-style: italic;">${c.dificuldade_interpessoal}</p>
+                    <h4 class="label-bold" style="text-transform: uppercase; font-size: 15px; margin-bottom: 10px;">Dificuldade Interpessoal</h4>
+                    <p style="color: #1f2937; line-height: 1.7; font-style: italic; font-size: 15px;">${c.dificuldade_interpessoal}</p>
                 </div>
                 <div class="add-info-box">
-                    <h4 style="font-weight: bold; color: #1e3a8a; text-transform: uppercase; font-size: 14px; margin-bottom: 8px;">Habilidades e Competências</h4>
-                    <p style="color: #1f2937; line-height: 1.6; font-style: italic;">${c.habilidades_competencias}</p>
+                    <h4 class="label-bold" style="text-transform: uppercase; font-size: 15px; margin-bottom: 10px;">Habilidades e Competências</h4>
+                    <p style="color: #1f2937; line-height: 1.7; font-style: italic; font-size: 15px;">${c.habilidades_competencias}</p>
                 </div>
             </section>
 
-            <footer style="text-align: center; font-size: 12px; color: #9ca3af; margin-top: 60px; border-top: 1px solid #e5e7eb; padding-top: 24px; font-style: italic;">
-                Documento oficial gerado eletronicamente em ${new Date().toLocaleString()} | Bramarlog Logística & Transportes
+            <footer style="text-align: center; font-size: 14px; color: #6b7280; margin-top: 60px; border-top: 2px solid #e5e7eb; padding-top: 30px; font-style: italic;">
+                Documento gerado automaticamente pelo sistema de recrutamento Bramarlog em ${new Date().toLocaleString()}
             </footer>
         </div>
 
@@ -230,30 +234,45 @@ async function printCandidatePDF() {
     const { jsPDF } = window.jspdf;
     const element = document.getElementById('pdf-container');
     
-    // Mostra o container se estiver escondido (no caso de modais)
-    const originalStyle = element.style.display;
-    element.style.display = 'block';
+    // Configurações para captura de imagem de alta fidelidade
+    const canvas = await html2canvas(element, { 
+        scale: 3, // Aumenta a resolução para evitar serrilhado nas letras
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        windowWidth: 800 // Garante que a largura seja consistente com o CSS
+    });
 
+    const imgData = canvas.toDataURL('image/jpeg', 1.0); // Usar JPEG com qualidade máxima
     const pdf = new jsPDF('p', 'mm', 'a4');
     
-    try {
-        await pdf.html(element, {
-            callback: function (doc) {
-                doc.save(`curriculo_${currentCandidato.nome_completo.replace(/\s+/g, '_')}.pdf`);
-                element.style.display = originalStyle;
-            },
-            x: 0,
-            y: 0,
-            width: 210, // Largura A4 em mm
-            windowWidth: 800, // Largura da janela virtual para renderização
-            autoPaging: 'text', // Tenta quebrar a página sem cortar texto
-            margin: [10, 10, 10, 10] // Margens [top, left, bottom, right]
-        });
-    } catch (error) {
-        console.error('Erro ao gerar PDF:', error);
-        alert('Erro ao gerar PDF. Tente usar a função de imprimir do navegador (Ctrl+P).');
-        element.style.display = originalStyle;
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    
+    // Largura útil da imagem no PDF (com margens de 10mm)
+    const margin = 10;
+    const imgWidthInPdf = pdfWidth - (2 * margin);
+    const imgHeightInPdf = (canvas.height * imgWidthInPdf) / canvas.width;
+    
+    let heightLeft = imgHeightInPdf;
+    let position = 0;
+    let pageNum = 0;
+
+    // Adiciona as páginas fatiando a imagem
+    while (heightLeft > 0) {
+        if (pageNum > 0) pdf.addPage();
+        
+        // O pulo do gato: calcular a posição Y negativa para mostrar a "fatia" correta
+        // Adicionamos a margem no topo da primeira página e compensamos nas seguintes
+        const yOffset = margin - (pageNum * (pdfHeight - 2 * margin));
+        
+        pdf.addImage(imgData, 'JPEG', margin, yOffset, imgWidthInPdf, imgHeightInPdf);
+        
+        heightLeft -= (pdfHeight - 2 * margin);
+        pageNum++;
     }
+    
+    pdf.save(`curriculo_${currentCandidato.nome_completo.replace(/\s+/g, '_')}.pdf`);
 }
 
 // Iniciar
