@@ -15,6 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
         addExperienciaField();
     }
 
+    // Se o checkbox de primeiro emprego já estiver marcado ao carregar (reload)
+    if (primeiroEmpregoCheckbox.checked) {
+        primeiroEmpregoCheckbox.dispatchEvent(new Event('change'));
+    }
+
     // Função para adicionar campos de experiência
     function addExperienciaField() {
         experienciaCount++;
@@ -83,10 +88,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.checked) {
             container.style.opacity = '0.5';
             container.style.pointerEvents = 'none';
-            inputs.forEach(input => input.value = '');
+            inputs.forEach(input => {
+                input.value = '';
+                // Remove required attribute temporarily
+                if (input.hasAttribute('required')) {
+                    input.dataset.wasRequired = 'true';
+                    input.removeAttribute('required');
+                }
+                input.classList.remove('border-red-500');
+            });
         } else {
             container.style.opacity = '1';
             container.style.pointerEvents = 'auto';
+            inputs.forEach(input => {
+                // Restore required attribute if it was there
+                if (input.dataset.wasRequired === 'true') {
+                    input.setAttribute('required', '');
+                }
+            });
         }
     });
 
